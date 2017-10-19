@@ -35,7 +35,7 @@ public class BoardLoadThread extends Thread {
             System.out.println("Took " + (new Date().getTime() - start.getTime()) + "milis");
 
             pxlsCLI.getBoard().setData(baos.toByteArray());
-            pxlsCLI.updateBoard();
+            pxlsCLI.updateGraphics();
         } catch (IOException e) {
             System.err.printf("Failed to load board data");
             e.printStackTrace();

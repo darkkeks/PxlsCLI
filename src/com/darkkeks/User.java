@@ -5,8 +5,6 @@ import java.util.Date;
 
 public class User extends MessageReceiver {
 
-    private Board board;
-
     private String token;
     private String username;
     private boolean banned;
@@ -17,8 +15,7 @@ public class User extends MessageReceiver {
 
     private boolean gotUserinfo;
 
-    public User(Board board, String token) throws URISyntaxException {
-        this.board = board;
+    public User(String token) {
         this.connect(token);
     }
 

@@ -18,16 +18,18 @@ public class BoardGraphics {
     private JFrame frame;
 
     private int offsetX, offsetY;
+    private int currentWidth, currentHeight;
     private int zoom;
 
     private boolean isShiftHeld;
-    private boolean drawTemplate;
 
     public BoardGraphics(Board board) {
         this.board = board;
         this.offsetX = this.offsetY = 0;
-        this.zoom = 0;
-        this.isShiftHeld = drawTemplate = false;
+        this.currentWidth = WIDTH;
+        this.currentHeight = HEIGHT;
+        this.zoom = 1;
+        this.isShiftHeld = false;
 
         frame = new JFrame("PxlsCLI");
 
@@ -44,60 +46,67 @@ public class BoardGraphics {
 
     public void redraw() {
         if(board.isLoaded())
-            canvas.drawBoard(board, offsetX, offsetY, WIDTH, HEIGHT, zoom);
-        if(drawTemplate && template != null)
-            canvas.drawTemplate(template, offsetX, offsetY, zoom);
+            canvas.drawBoard(board, offsetX, offsetY, currentWidth, currentHeight, zoom);
+        if(template != null && template.isLoaded())
+            canvas.drawTemplate(template, offsetX, offsetY, currentWidth, currentHeight, zoom);
     }
 
     public void setPixel(int x, int y, int color) {
         if(x >= offsetX && y >= offsetY &&
-                x < offsetX + WIDTH / (1 << zoom) &&
-                y < offsetY + HEIGHT / (1 << zoom)) {
+                x < offsetX + currentWidth &&
+                y < offsetY + currentHeight) {
             canvas.drawPixel(x - offsetX, y - offsetY, color, zoom);
         }
     }
 
     public void setTemplate(Template template) {
         this.template = template;
-        redraw();
     }
 
     private void moveUp() {
         if(isShiftHeld)
             offsetY = Math.max(0, offsetY - 1);
         else
-            offsetY = Math.max(0, offsetY - MOVE_STEP / (1 << zoom));
+            offsetY = Math.max(0, offsetY - MOVE_STEP / zoom);
     }
 
     private void moveDown() {
         if(isShiftHeld)
-            offsetY = Math.min(board.getHeight() - HEIGHT / (1 << zoom), offsetY + 1);
+            offsetY = Math.min(board.getHeight() - currentHeight, offsetY + 1);
         else
-            offsetY = Math.min(board.getHeight() - HEIGHT / (1 << zoom), offsetY + MOVE_STEP / (1 << zoom));
+            offsetY = Math.min(board.getHeight() - currentHeight, offsetY + MOVE_STEP / zoom);
     }
 
     private void moveLeft() {
         if(isShiftHeld)
             offsetX = Math.max(0, offsetX - 1);
         else
-            offsetX = Math.max(0, offsetX - MOVE_STEP / (1 << zoom));
+            offsetX = Math.max(0, offsetX - MOVE_STEP / zoom);
     }
 
     private void moveRight() {
         if(isShiftHeld)
-            offsetX = Math.min(board.getWidth() - WIDTH / (1 << zoom), offsetX + 1);
+            offsetX = Math.min(board.getWidth() - currentWidth, offsetX + 1);
         else
-            offsetX = Math.min(board.getWidth() - WIDTH / (1 << zoom), offsetX + MOVE_STEP / (1 << zoom));
+            offsetX = Math.min(board.getWidth() - currentWidth, offsetX + MOVE_STEP / zoom);
     }
 
     private void zoomIn() {
-        if(zoom < 7) zoom++;
+        if(zoom < 128) zoom <<= 1;
+        updateCurrentDimensions();
     }
 
     private void zoomOut() {
-        if(zoom > 0) zoom--;
-        offsetX = Math.min(board.getWidth() - WIDTH / (1 << zoom), offsetX);
-        offsetY = Math.min(board.getHeight() - HEIGHT / (1 << zoom), offsetY);
+        if(zoom > 1) zoom >>= 1;
+        updateCurrentDimensions();
+
+        offsetX = Math.min(board.getWidth() - currentWidth, offsetX);
+        offsetY = Math.min(board.getHeight() - currentHeight, offsetY);
+    }
+
+    private void updateCurrentDimensions() {
+        currentWidth = (int)Math.ceil((double)WIDTH / zoom);
+        currentHeight = (int)Math.ceil((double)HEIGHT / zoom);
     }
 
     private void setupKeyListener() {
@@ -107,7 +116,7 @@ public class BoardGraphics {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if(!board.isLoaded())
+                if(!board.isLoaded() && !template.isLoaded())
                     return;
                 if(e.getKeyCode() == KeyEvent.VK_SHIFT){
                     isShiftHeld = true;
@@ -136,16 +145,13 @@ public class BoardGraphics {
     }
 
     private void setupMouseWheelListener() {
-        frame.addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                if(e.getWheelRotation() < 0) {
-                    zoomIn();
-                } else {
-                    zoomOut();
-                }
-                redraw();
+        frame.addMouseWheelListener((e) -> {
+            if(e.getWheelRotation() < 0) {
+                zoomIn();
+            } else {
+                zoomOut();
             }
+            redraw();
         });
     }
 }
