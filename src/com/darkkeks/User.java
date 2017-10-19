@@ -1,7 +1,5 @@
 package com.darkkeks;
 
-import com.google.gson.JsonObject;
-
 import java.net.URISyntaxException;
 import java.util.Date;
 

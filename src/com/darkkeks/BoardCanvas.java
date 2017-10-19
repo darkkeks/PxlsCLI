@@ -56,4 +56,21 @@ public class BoardCanvas extends JPanel {
         }
         repaint();
     }
+
+    public void drawTemplate(Template template, int offsetX, int offsetY, int zoom) {
+        int x1 = Math.max(template.getX(), offsetX);
+        int x2 = Math.min(template.getX() + template.getWidth(), offsetX + canvas.getWidth() / (1 << zoom));
+        int y1 = Math.max(template.getY(), offsetY);
+        int y2 = Math.min(template.getY() + template.getHeight(), offsetY + canvas.getHeight() / (1 << zoom));
+        for(int x = x1; x < x2; ++x) {
+            for(int y = y1; y < y2; ++y) {
+                for(int i = (x - offsetX) * (1 << zoom); i < (x + 1 - offsetX) * (1 << zoom); ++i) {
+                    for (int j = (y - offsetY) * (1 << zoom); j < (y + 1 - offsetY) * (1 << zoom); ++j) {
+                        canvas.setRGB(i, j, template.getImageData().getRGB(x - template.getX(), y - template.getY()));
+                    }
+                }
+            }
+        }
+        repaint();
+    }
 }

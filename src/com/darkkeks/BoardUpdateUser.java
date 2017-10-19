@@ -25,8 +25,6 @@ public class BoardUpdateUser extends MessageReceiver {
     protected void handlePixel(int x, int y, byte color) {
         System.out.println("Pixel " + x + " " + y + " " + color);
         board.set(x, y, color);
-        if(x == 644 && y == 302)
-            System.out.println("lol");
         graphics.setPixel(x, y, color);
     }
 }

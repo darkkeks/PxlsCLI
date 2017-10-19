@@ -1,7 +1,6 @@
 package com.darkkeks;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -14,6 +13,7 @@ public class BoardGraphics {
     private static final int MOVE_STEP = 250;
 
     private Board board;
+    private Template template;
     private BoardCanvas canvas;
     private JFrame frame;
 
@@ -21,12 +21,13 @@ public class BoardGraphics {
     private int zoom;
 
     private boolean isShiftHeld;
+    private boolean drawTemplate;
 
     public BoardGraphics(Board board) {
         this.board = board;
         this.offsetX = this.offsetY = 0;
         this.zoom = 0;
-        this.isShiftHeld = false;
+        this.isShiftHeld = drawTemplate = false;
 
         frame = new JFrame("PxlsCLI");
 
@@ -42,7 +43,10 @@ public class BoardGraphics {
     }
 
     public void redraw() {
-        canvas.drawBoard(board, offsetX, offsetY, WIDTH, HEIGHT, zoom);
+        if(board.isLoaded())
+            canvas.drawBoard(board, offsetX, offsetY, WIDTH, HEIGHT, zoom);
+        if(drawTemplate && template != null)
+            canvas.drawTemplate(template, offsetX, offsetY, zoom);
     }
 
     public void setPixel(int x, int y, int color) {
@@ -51,6 +55,11 @@ public class BoardGraphics {
                 y < offsetY + HEIGHT / (1 << zoom)) {
             canvas.drawPixel(x - offsetX, y - offsetY, color, zoom);
         }
+    }
+
+    public void setTemplate(Template template) {
+        this.template = template;
+        redraw();
     }
 
     private void moveUp() {
