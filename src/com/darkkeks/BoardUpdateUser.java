@@ -23,7 +23,6 @@ public class BoardUpdateUser extends MessageReceiver {
 
     @Override
     protected void handlePixel(int x, int y, byte color) {
-        System.out.println("Pixel " + x + " " + y + " " + color);
         board.set(x, y, color);
         graphics.setPixel(x, y, color);
     }

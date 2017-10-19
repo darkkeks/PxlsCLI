@@ -52,6 +52,10 @@ public class Template {
         return data[y * getWidth() + x];
     }
 
+    public byte[] getData() {
+        return data;
+    }
+
     public boolean isLoaded() {
         return isLoaded;
     }
@@ -62,10 +66,6 @@ public class Template {
 
         this.isLoaded = true;
         graphics.redraw();
-    }
-
-    public BufferedImage getImageData() {
-        return imageData;
     }
 
     private void findNearestColors() {
@@ -88,7 +88,7 @@ public class Template {
                     }
                     data[current] = closest;
                 } else {
-                    data[current] = -1;
+                    data[current] = Color.TRANSPARENT.id; // transparent
                 }
                 current++;
             }

@@ -12,8 +12,8 @@ import java.util.Map;
 public class SocketClient extends WebSocketClient {
 
     private static final String WEBSOCKET_URL = "wss://pxls.space/ws";
-    private static Map<String, String> headers = new HashMap<>();
 
+    private static Map<String, String> headers = new HashMap<>();
     private MessageReceiver receiver;
 
     public SocketClient(MessageReceiver receiver, String token) throws URISyntaxException {
@@ -23,12 +23,12 @@ public class SocketClient extends WebSocketClient {
         if(token != null) {
             headers.put("Cookie", token);
         }
+
+        headers = new HashMap<>(); // new SocketClient will receive it's own headers
     }
 
     @Override
-    public void onOpen(ServerHandshake handshakedata) {
-        System.out.println("Connected");
-    }
+    public void onOpen(ServerHandshake handshakedata) {}
 
     @Override
     public void onMessage(String message) {

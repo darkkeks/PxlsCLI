@@ -3,8 +3,6 @@ package com.darkkeks;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 
 public class BoardGraphics {
 
@@ -55,7 +53,7 @@ public class BoardGraphics {
         if(x >= offsetX && y >= offsetY &&
                 x < offsetX + currentWidth &&
                 y < offsetY + currentHeight) {
-            canvas.drawPixel(x - offsetX, y - offsetY, color, zoom);
+            canvas.drawOnePixel(x - offsetX, y - offsetY, color, zoom);
         }
     }
 

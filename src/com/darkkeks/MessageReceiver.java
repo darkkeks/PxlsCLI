@@ -17,6 +17,14 @@ public abstract class MessageReceiver {
         }
     }
 
+    protected boolean connectionActive() {
+        return socketClient.isOpen();
+    }
+
+    protected boolean connectionClosed() {
+        return socketClient.isClosed();
+    }
+
     protected void close() {
         socketClient.close();
     }
@@ -46,6 +54,7 @@ public abstract class MessageReceiver {
             } else if(type.equalsIgnoreCase("users")) {
                 handleUsers(msg.get("count").getAsInt());
             } else if(type.equalsIgnoreCase("userinfo")) {
+                System.out.println(message);
                 handleUserinfo(msg.get("username").getAsString(),
                         msg.get("role").getAsString(),
                         msg.get("banned").getAsBoolean(),

@@ -25,7 +25,7 @@ public class BoardCanvas extends JPanel {
         g2.drawImage(canvas, null, null);
     }
 
-    public void fillCanvas(Color c) {
+    private void fillCanvas(Color c) {
         int color = c.code;
         for (int x = 0; x < canvas.getWidth(); x++) {
             for (int y = 0; y < canvas.getHeight(); y++) {
@@ -47,13 +47,17 @@ public class BoardCanvas extends JPanel {
         repaint();
     }
 
-    public void drawPixel(int x, int y, int color, int zoom) {
+    public void drawOnePixel(int x, int y, int color, int zoom) {
+        drawPixel(x, y, color, zoom);
+        repaint();
+    }
+
+    private void drawPixel(int x, int y, int color, int zoom) {
         for(int i = x * zoom; i < canvas.getWidth() && i < (x + 1) * zoom; ++i) {
             for(int j = y * zoom; j < canvas.getHeight() && j < (y + 1) * zoom; ++j) {
                 canvas.setRGB(i, j, Color.get(color).code);
             }
         }
-        repaint();
     }
 
     public void drawTemplate(Template template, int offsetX, int offsetY, int width, int height, int zoom) {
