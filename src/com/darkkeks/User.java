@@ -4,6 +4,8 @@ import java.util.Date;
 
 public class User extends MessageReceiver {
 
+    private static final float DEFAULT_COOLDOWN = 5;
+
     private String token;
     private String username;
     private boolean banned;
@@ -22,12 +24,12 @@ public class User extends MessageReceiver {
     }
 
     public boolean canPlace() {
-        return cooldown != Float.NaN && new Date().getTime() - cooldownStart > cooldown * 1000;
+        return cooldown != DEFAULT_COOLDOWN && new Date().getTime() - cooldownStart > cooldown * 1000;
     }
 
     public boolean tryPlace(Pixel pixel) {
         if(canPlace()) {
-            cooldown = Float.NaN;
+            cooldown = DEFAULT_COOLDOWN;
 
             System.out.println(username + " placed pixel " + pixel.toString());
             sendPixel(pixel.getX(), pixel.getY(), (byte)pixel.getColor());

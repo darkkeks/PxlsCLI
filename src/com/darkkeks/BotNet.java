@@ -37,6 +37,7 @@ public class BotNet extends Thread {
                 }
 
                 if(task.isEmpty() || refreshTimer <= 0) {
+                    System.out.println("Refreshing task");
                     refreshTimer = 30;
                     task.generate();
                 } else {

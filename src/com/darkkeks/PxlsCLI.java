@@ -2,7 +2,9 @@ package com.darkkeks;
 
 import com.google.gson.*;
 
+import java.io.*;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 public class PxlsCLI {
 
@@ -18,17 +20,21 @@ public class PxlsCLI {
     private void start() {
         board = new Board(WIDTH, HEIGHT);
         graphics = new BoardGraphics(board);
-        template = new Template(graphics, "https://i.imgur.com/qGvCUhm.png", 1243, 585, 1);
-        //graphics.setTemplate(template);
+        template = new Template(graphics, "https://i.imgur.com/dJixaNt.png", 568, 762, 1);
+        graphics.setTemplate(template);
 
         new BoardUpdateUser(board, graphics);
         new BoardLoadThread(this).start();
         new TemplateLoadThread(template).start();
 
-        new BotNet(new TaskGenerator(board, template))
-                .addUser(new User("16192|rmUQRosnInSkcqExYxxVyCxINDsjvkrmx"))
-                .addUser(new User("16195|teJJEwxwCyolXykdSufVZROPomPVUwEIm"))
-                .start();
+        Object[] tokens = readTokens();
+        System.out.println("Read " + tokens.length + " tokens.");
+
+        BotNet bot = new BotNet(new TaskGenerator(board, template));
+        for(Object token : tokens) {
+                bot.addUser(new User((String)token));
+        }
+        bot.start();
     }
 
     public Board getBoard() {
@@ -37,6 +43,21 @@ public class PxlsCLI {
 
     public void updateGraphics() {
         graphics.redraw();
+    }
+
+    private Object[] readTokens() {
+        ArrayList<String> res = new ArrayList<>();
+        File file = new File("tokens.in");
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))){
+            String line;
+            while((line = reader.readLine()) != null) {
+                if(line.matches("\\d{5}\\|[a-zA-Z]{33}"))
+                    res.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return res.toArray();
     }
 
     public static void main(String[] args) throws URISyntaxException {

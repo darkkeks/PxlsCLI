@@ -37,7 +37,12 @@ public class TaskGenerator {
                 int x = i - _x, y = j - _y;
                 if(brd[i][j] >= 0 && !used[x][y]) {
                     if(brd[i][j] != tpl[x][y])
-                        task.offer(new Pixel(i, j, tpl[x][y]));
+                        if(tpl[x][y] != Color.TRANSPARENT.id)
+                            task.offer(new Pixel(i, j, tpl[x][y]));
+                        else
+                            task.offer(new Pixel(i, j, Color.TRANSPARENT.id));
+
+                    used[x][y] = true;
                     q.offer(new Pixel(i, j, tpl[x][y]));
                     while(!q.isEmpty()) {
                         Pixel cur = q.poll();
@@ -69,9 +74,10 @@ public class TaskGenerator {
     private byte[][] getData(byte[] data, int width, int height) {
         byte[][] res = new byte[width][height];
         int current = 0;
-        for(int i = 0; i < width; ++i){
-            for(int j = 0; j < height; ++j) {
-                res[j][i] = data[current++];
+
+        for(int j = 0; j < height; ++j) {
+            for(int i = 0; i < width; ++i){
+                res[i][j] = data[current++];
             }
         }
         return res;
