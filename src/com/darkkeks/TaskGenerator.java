@@ -36,11 +36,11 @@ public class TaskGenerator {
             for(int j = _y; j < _y + m; ++j) {
                 int x = i - _x, y = j - _y;
                 if(brd[i][j] >= 0 && !used[x][y]) {
+                    if(brd[i][j] != tpl[x][y])
+                        task.offer(new Pixel(i, j, tpl[x][y]));
                     q.offer(new Pixel(i, j, tpl[x][y]));
                     while(!q.isEmpty()) {
                         Pixel cur = q.poll();
-                        if(cur.getColor() != brd[cur.getX()][cur.getY()])
-                            task.offer(cur);
 
                         for(int d = 0; d < 4; ++d) {
                             int nx = cur.getX() + dx[d], ny = cur.getY() + dy[d];

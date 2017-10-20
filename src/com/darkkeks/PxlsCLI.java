@@ -19,14 +19,15 @@ public class PxlsCLI {
         board = new Board(WIDTH, HEIGHT);
         graphics = new BoardGraphics(board);
         template = new Template(graphics, "https://i.imgur.com/qGvCUhm.png", 1243, 585, 1);
-        graphics.setTemplate(template);
+        //graphics.setTemplate(template);
 
         new BoardUpdateUser(board, graphics);
         new BoardLoadThread(this).start();
         new TemplateLoadThread(template).start();
 
         new BotNet(new TaskGenerator(board, template))
-                .addUser(new User("pxls-token=16127|VvpmcApZbydYuwYxCYVjJPIenoBmmcIVq"))
+                .addUser(new User("16192|rmUQRosnInSkcqExYxxVyCxINDsjvkrmx"))
+                .addUser(new User("16195|teJJEwxwCyolXykdSufVZROPomPVUwEIm"))
                 .start();
     }
 

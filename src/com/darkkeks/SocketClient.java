@@ -21,7 +21,7 @@ public class SocketClient extends WebSocketClient {
         this.receiver = receiver;
 
         if(token != null) {
-            headers.put("Cookie", token);
+            headers.put("Cookie", "pxls-token=" + token);
         }
 
         headers = new HashMap<>(); // new SocketClient will receive it's own headers

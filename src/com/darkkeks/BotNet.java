@@ -40,6 +40,21 @@ public class BotNet extends Thread {
                     refreshTimer = 30;
                     task.generate();
                 } else {
+                    int userCount = placeQueue.size();
+                    while(!placeQueue.isEmpty() && refreshTimer > 0 && userCount > 0) {
+                        User user = placeQueue.poll();
+                        if(user.canPlace()) {
+                            if(user.tryPlace(task.getNext())) {
+                                task.successfulyPlaced();
+                                refreshTimer--;
+                            }
+                        }
+                        if(!user.isClosed()) {
+                            placeQueue.offer(user);
+                        }
+                        userCount--;
+                    }
+
                     while(!placeQueue.isEmpty() &&
                             placeQueue.peek().tryPlace(task.getNext())) {
                         task.successfulyPlaced();
@@ -59,7 +74,7 @@ public class BotNet extends Thread {
     }
 
     public BotNet addUser(User user) {
-        int id = Integer.parseInt(user.getToken().split("=")[1].split("\\|")[0]);
+        int id = Integer.parseInt(user.getToken().split("\\|")[0]);
         if(!users.containsKey(id)) {
             users.put(id, user);
             loginQueue.offer(user);

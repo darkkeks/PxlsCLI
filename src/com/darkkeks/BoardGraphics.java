@@ -114,7 +114,7 @@ public class BoardGraphics {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                if(!board.isLoaded() && !template.isLoaded())
+                if(!board.isLoaded() || (template != null && !template.isLoaded()))
                     return;
                 if(e.getKeyCode() == KeyEvent.VK_SHIFT){
                     isShiftHeld = true;

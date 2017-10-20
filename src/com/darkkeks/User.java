@@ -67,6 +67,7 @@ public class User extends MessageReceiver {
 
     @Override
     protected void handleCooldown(float wait) {
+        System.out.println(username + " cooldown: " + wait);
         if(!gotUserinfo) {
             close();
             throw new IllegalStateException("Couldn't login");
