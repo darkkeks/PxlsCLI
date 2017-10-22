@@ -16,8 +16,6 @@ public class Settings {
     }
 
     private void readSettings(String path) throws IOException {
-
-        /* READ FILE CONTENT */
         InputStream is = new FileInputStream(path);
         BufferedReader buf = new BufferedReader(new InputStreamReader(is));
 
@@ -31,10 +29,7 @@ public class Settings {
 
         String fileAsString = sb.toString();
 
-        /* GENERATE JSON OBJECT */
-
-        this.sets = PxlsCLI.gson.parse(fileAsString).getAsJsonObject();
-
+        sets = PxlsCLI.gson.parse(fileAsString).getAsJsonObject();
     }
 
     public String getTokensFilePath() {

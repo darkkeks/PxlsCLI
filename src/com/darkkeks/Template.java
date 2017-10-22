@@ -48,8 +48,8 @@ public class Template {
         return opacity;
     }
 
-    public int get(int x, int y) {
-        return data[y * getWidth() + x];
+    public BufferedImage getImageData() {
+        return imageData;
     }
 
     public byte[] getData() {

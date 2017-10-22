@@ -1,6 +1,7 @@
 package com.darkkeks;
 
 import com.google.gson.*;
+
 import java.io.*;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -10,29 +11,23 @@ public class PxlsCLI {
     private static final int WIDTH = 2000;
     private static final int HEIGHT = 2000;
 
-    public static JsonParser gson = new JsonParser();
-
-    private BoardGraphics graphics;
-    private Board board;
-    private Template template;
+    public static final JsonParser gson = new JsonParser();
 
     public static Settings settings = new Settings("settings.json");
-    private Console console = System.console();
 
     private void start() {
-        board = new Board(WIDTH, HEIGHT);
-        graphics = new BoardGraphics(board);
+        Board board = new Board(WIDTH, HEIGHT);
+        BoardGraphics graphics = new BoardGraphics(board);
 
-        template = new Template(graphics,
+        Template template = new Template(graphics,
                 settings.getTemplateURI(),
                 settings.getTemplateOffsetX(),
                 settings.getTemplateOffsetY(),
                 settings.getTemplateOpacity());
-
         graphics.setTemplate(template);
 
         new BoardUpdateUser(board, graphics);
-        new BoardLoadThread(this).start();
+        new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
         Object[] tokens = readTokens(settings.getTokensFilePath());
@@ -40,17 +35,10 @@ public class PxlsCLI {
 
         BotNet bot = new BotNet(new TaskGenerator(board, template));
         for(Object token : tokens) {
-                bot.addUser(new User((String)token));
+            new User((String)token);
+            bot.addUser(new User((String)token));
         }
         bot.start();
-    }
-
-    public Board getBoard() {
-        return board;
-    }
-
-    public void updateGraphics() {
-        graphics.redraw();
     }
 
     private Object[] readTokens(String path) {
