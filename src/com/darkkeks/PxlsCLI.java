@@ -13,36 +13,25 @@ public class PxlsCLI {
 
     public static final JsonParser gson = new JsonParser();
 
-    private BoardGraphics graphics;
-    private Board board;
-    private Template template;
-
     private void start() {
-        board = new Board(WIDTH, HEIGHT);
-        graphics = new BoardGraphics(board);
-        template = new Template(graphics, "https://i.imgur.com/dJixaNt.png", 568, 762, 1);
+        Board board = new Board(WIDTH, HEIGHT);
+        BoardGraphics graphics = new BoardGraphics(board);
+        Template template = new Template(graphics, "https://i.imgur.com/YNACc3J.png", 1186, 582, 0.5f);
         graphics.setTemplate(template);
 
         new BoardUpdateUser(board, graphics);
-        new BoardLoadThread(this).start();
+        new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
-        Object[] tokens = readTokens();
+        /*Object[] tokens = readTokens();
         System.out.println("Read " + tokens.length + " tokens.");
 
         BotNet bot = new BotNet(new TaskGenerator(board, template));
         for(Object token : tokens) {
-                bot.addUser(new User((String)token));
+            new User((String)token);
+            bot.addUser(new User((String)token));
         }
-        bot.start();
-    }
-
-    public Board getBoard() {
-        return board;
-    }
-
-    public void updateGraphics() {
-        graphics.redraw();
+        bot.start();*/
     }
 
     private Object[] readTokens() {

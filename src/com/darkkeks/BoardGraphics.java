@@ -3,36 +3,34 @@ package com.darkkeks;
 import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.AffineTransform;
 
 public class BoardGraphics {
 
     private static final int WIDTH = 500;
     private static final int HEIGHT = 500;
     private static final int MOVE_STEP = 250;
+    private static final int ZOOM_STEP = 2;
 
     private Board board;
     private Template template;
     private BoardCanvas canvas;
     private JFrame frame;
 
+    private AffineTransform transform;
     private int offsetX, offsetY;
-    private int currentWidth, currentHeight;
-    private int zoom;
-
-    private boolean isShiftHeld;
+    private double zoom;
 
     public BoardGraphics(Board board) {
         this.board = board;
+
+        canvas = new BoardCanvas(WIDTH, HEIGHT, board.getWidth(), board.getHeight());
+        transform = canvas.getTransform();
+
         this.offsetX = this.offsetY = 0;
-        this.currentWidth = WIDTH;
-        this.currentHeight = HEIGHT;
         this.zoom = 1;
-        this.isShiftHeld = false;
 
         frame = new JFrame("PxlsCLI");
-
-        canvas = new BoardCanvas(WIDTH, HEIGHT);
-
         frame.add(canvas);
         frame.setResizable(false);
         frame.pack();
@@ -42,69 +40,60 @@ public class BoardGraphics {
         setupMouseWheelListener();
     }
 
+    public void updateBoard() {
+        canvas.drawBoard(board);
+        redraw();
+    }
+
     public void redraw() {
         if(board.isLoaded())
-            canvas.drawBoard(board, offsetX, offsetY, currentWidth, currentHeight, zoom);
-        if(template != null && template.isLoaded())
-            canvas.drawTemplate(template, offsetX, offsetY, currentWidth, currentHeight, zoom);
+            canvas.repaint();
     }
 
     public void setPixel(int x, int y, int color) {
-        if(x >= offsetX && y >= offsetY &&
-                x < offsetX + currentWidth &&
-                y < offsetY + currentHeight) {
-            canvas.drawOnePixel(x - offsetX, y - offsetY, color, zoom);
-        }
+        canvas.setPixel(x, y, color);
     }
 
     public void setTemplate(Template template) {
         this.template = template;
+        canvas.setTemplate(template);
     }
 
     private void moveUp() {
-        if(isShiftHeld)
-            offsetY = Math.max(0, offsetY - 1);
-        else
-            offsetY = Math.max(0, offsetY - MOVE_STEP / zoom);
+        offsetY = (int)Math.max(0, offsetY - MOVE_STEP / zoom);
     }
 
     private void moveDown() {
-        if(isShiftHeld)
-            offsetY = Math.min(board.getHeight() - currentHeight, offsetY + 1);
-        else
-            offsetY = Math.min(board.getHeight() - currentHeight, offsetY + MOVE_STEP / zoom);
+        offsetY = (int)Math.min(board.getHeight() - (int)Math.ceil((double)HEIGHT / zoom), offsetY + MOVE_STEP / zoom);
     }
 
     private void moveLeft() {
-        if(isShiftHeld)
-            offsetX = Math.max(0, offsetX - 1);
-        else
-            offsetX = Math.max(0, offsetX - MOVE_STEP / zoom);
+        offsetX = (int)Math.max(0, offsetX - MOVE_STEP / zoom);
     }
 
     private void moveRight() {
-        if(isShiftHeld)
-            offsetX = Math.min(board.getWidth() - currentWidth, offsetX + 1);
-        else
-            offsetX = Math.min(board.getWidth() - currentWidth, offsetX + MOVE_STEP / zoom);
+        offsetX = (int)Math.min(board.getWidth() - (int)Math.ceil((double)WIDTH / zoom), offsetX + MOVE_STEP / zoom);
     }
 
-    private void zoomIn() {
-        if(zoom < 128) zoom <<= 1;
-        updateCurrentDimensions();
+    private void zoomIn(int zoomX, int zoomY) {
+        if(zoom < 128) {
+            offsetX += zoomX / (2 * zoom);
+            offsetY += zoomY / (2 * zoom);
+            zoom *= ZOOM_STEP;
+        }
     }
 
-    private void zoomOut() {
-        if(zoom > 1) zoom >>= 1;
-        updateCurrentDimensions();
-
-        offsetX = Math.min(board.getWidth() - currentWidth, offsetX);
-        offsetY = Math.min(board.getHeight() - currentHeight, offsetY);
+    private void zoomOut(int zoomX, int zoomY) {
+        if(zoom > 1 / ZOOM_STEP) {
+            zoom /= ZOOM_STEP;
+            offsetX -= zoomX / (2 * zoom);
+            offsetY -= zoomY / (2 * zoom);
+        }
     }
 
-    private void updateCurrentDimensions() {
-        currentWidth = (int)Math.ceil((double)WIDTH / zoom);
-        currentHeight = (int)Math.ceil((double)HEIGHT / zoom);
+    private void updateTransform() {
+        transform.setToScale(zoom, zoom);
+        transform.translate(-offsetX, -offsetY);
     }
 
     private void setupKeyListener() {
@@ -116,9 +105,7 @@ public class BoardGraphics {
             public void keyPressed(KeyEvent e) {
                 if(!board.isLoaded() || (template != null && !template.isLoaded()))
                     return;
-                if(e.getKeyCode() == KeyEvent.VK_SHIFT){
-                    isShiftHeld = true;
-                } else if(e.getKeyCode() == KeyEvent.VK_UP) {
+                if(e.getKeyCode() == KeyEvent.VK_UP) {
                     moveUp();
                 } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
                     moveDown();
@@ -127,17 +114,12 @@ public class BoardGraphics {
                 } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
                     moveRight();
                 }
+                updateTransform();
                 redraw();
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if(!board.isLoaded())
-                    return;
-                if(e.getKeyCode() == KeyEvent.VK_SHIFT) {
-                    isShiftHeld = false;
-                }
-                redraw();
             }
         });
     }
@@ -145,10 +127,11 @@ public class BoardGraphics {
     private void setupMouseWheelListener() {
         frame.addMouseWheelListener((e) -> {
             if(e.getWheelRotation() < 0) {
-                zoomIn();
+                zoomIn(e.getX(), e.getY());
             } else {
-                zoomOut();
+                zoomOut(e.getX(), e.getY());
             }
+            updateTransform();
             redraw();
         });
     }

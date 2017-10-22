@@ -2,27 +2,55 @@ package com.darkkeks;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
 
 public class BoardCanvas extends JPanel {
 
+    private int width, height;
     private BufferedImage canvas;
+    private AffineTransform transform;
+    private AffineTransform templateTransform;
+    private Template template;
 
-    public BoardCanvas(int width, int height) {
-        canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+    public BoardCanvas(int width, int height, int boardWidth, int boardHeight) {
+        this.width = width;
+        this.height = height;
+        transform = new AffineTransform();
+        templateTransform = new AffineTransform();
+        canvas = new BufferedImage(boardWidth, boardHeight, BufferedImage.TYPE_INT_ARGB);
         fillCanvas(Color.BACKGROUND);
     }
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(canvas.getWidth(), canvas.getHeight());
+        return new Dimension(width, height);
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
-        g2.drawImage(canvas, null, null);
+        g2.drawImage(canvas, transform, null);
+
+        if(template != null && template.isLoaded()) {
+            RescaleOp filter = new RescaleOp(new float[]{1f, 1f, 1f, template.getOpacity()}, new float[4], null);
+            BufferedImage filtered = filter.filter(template.getImageData(), null);
+
+            AffineTransform currentTemplateTransform = new AffineTransform(transform);
+            currentTemplateTransform.translate(templateTransform.getTranslateX(), templateTransform.getTranslateY());
+            g2.drawImage(filtered, currentTemplateTransform, null);
+        }
+    }
+
+    public void setTemplate(Template template) {
+        this.template = template;
+        this.templateTransform.setToTranslation(template.getX(), template.getY());
+    }
+
+    public AffineTransform getTransform() {
+        return transform;
     }
 
     private void fillCanvas(Color c) {
@@ -35,42 +63,20 @@ public class BoardCanvas extends JPanel {
         repaint();
     }
 
-    public void drawBoard(Board board, int offsetX, int offsetY, int width, int height, int zoom) {
+    public void drawBoard(Board board) {
         byte[] data = board.getData();
-        for(int x = 0; x < width; ++x) {
-            int current = offsetY * board.getWidth() + (x + offsetX);
-            for(int y = 0; y < height; ++y) {
-                drawPixel(x, y, data[current], zoom);
+        for(int x = 0; x < board.getWidth(); ++x) {
+            int current = x;
+            for(int y = 0; y < board.getHeight(); ++y) {
+                canvas.setRGB(x, y, Color.get(data[current]).code);
                 current += board.getWidth();
             }
         }
         repaint();
     }
 
-    public void drawOnePixel(int x, int y, int color, int zoom) {
-        drawPixel(x, y, color, zoom);
-        repaint();
-    }
-
-    private void drawPixel(int x, int y, int color, int zoom) {
-        for(int i = x * zoom; i < canvas.getWidth() && i < (x + 1) * zoom; ++i) {
-            for(int j = y * zoom; j < canvas.getHeight() && j < (y + 1) * zoom; ++j) {
-                canvas.setRGB(i, j, Color.get(color).code);
-            }
-        }
-    }
-
-    public void drawTemplate(Template template, int offsetX, int offsetY, int width, int height, int zoom) {
-        int x1 = Math.max(template.getX(), offsetX);
-        int x2 = Math.min(template.getX() + template.getWidth(), offsetX + width);
-        int y1 = Math.max(template.getY(), offsetY);
-        int y2 = Math.min(template.getY() + template.getHeight(), offsetY + height);
-        for(int x = x1; x < x2; ++x) {
-            for(int y = y1; y < y2; ++y) {
-                drawPixel(x - offsetX, y - offsetY, 
-                    template.get(x - template.getX(), y - template.getY()), zoom);
-            }
-        }
+    public void setPixel(int x, int y, int color) {
+        canvas.setRGB(x, y, Color.get(color).code);
         repaint();
     }
 }
