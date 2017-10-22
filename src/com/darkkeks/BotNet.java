@@ -24,8 +24,7 @@ public class BotNet extends Thread {
         int refreshTimer = 30;
         while(true) {
             try {
-                int userCount = loginQueue.size();
-                while(!loginQueue.isEmpty() && userCount > 0) {
+                if(!loginQueue.isEmpty()) {
                     User user = loginQueue.poll();
                     if(user.isConnected() && user.gotUserinfo()) {
                         System.out.println("Added " + user.getName() + " to place queue.");
@@ -35,7 +34,6 @@ public class BotNet extends Thread {
                     } else {
                         System.out.println("User disconnected " + user.getToken());
                     }
-                    userCount--;
                 }
 
                 if(task.isEmpty() || refreshTimer <= 0) {
@@ -43,8 +41,7 @@ public class BotNet extends Thread {
                     refreshTimer = 30;
                     task.generate();
                 } else {
-                    userCount = placeQueue.size();
-                    System.out.println("Users in queue: " + userCount);
+                    int userCount = placeQueue.size();
                     while(!placeQueue.isEmpty() && refreshTimer > 0 && userCount > 0) {
                         User user = placeQueue.poll();
                         if(user.canPlace()) {

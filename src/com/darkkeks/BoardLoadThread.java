@@ -7,12 +7,10 @@ import java.net.URL;
 import java.util.Date;
 
 public class BoardLoadThread extends Thread {
-    private Board board;
-    private BoardGraphics graphics;
+    private PxlsCLI pxlsCLI;
 
-    public BoardLoadThread(Board board, BoardGraphics graphics) {
-        this.board = board;
-        this.graphics = graphics;
+    public BoardLoadThread(PxlsCLI pxlsCLI) {
+        this.pxlsCLI = pxlsCLI;
     }
 
     @Override
@@ -36,8 +34,8 @@ public class BoardLoadThread extends Thread {
             System.out.println("Loaded board");
             System.out.println("Took " + (new Date().getTime() - start.getTime()) + "milis");
 
-            board.setData(baos.toByteArray());
-            graphics.updateBoard();
+            pxlsCLI.getBoard().setData(baos.toByteArray());
+            pxlsCLI.updateGraphics();
         } catch (IOException e) {
             System.err.printf("Failed to load board data");
             e.printStackTrace();
