@@ -3,18 +3,16 @@ package com.darkkeks;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
-import java.net.URISyntaxException;
-
 public abstract class MessageReceiver {
     private SocketClient socketClient;
 
     protected void connect(String token) {
-        try {
-            socketClient = new SocketClient(this, token);
-            socketClient.connect();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        connect(new SocketClient(this, token));
+        socketClient.connect();
+    }
+
+    protected void connect(SocketClient client) {
+        socketClient = client;
     }
 
     protected boolean connectionActive() {

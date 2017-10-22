@@ -12,12 +12,22 @@ import java.util.Map;
 public class SocketClient extends WebSocketClient {
 
     private static final String WEBSOCKET_URL = "wss://pxls.space/ws";
+    protected static final URI serverUri;
+    static {
+        URI uri = null;
+        try {
+            uri = new URI(WEBSOCKET_URL);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        serverUri = uri;
+    }
 
     private static Map<String, String> headers = new HashMap<>();
     private MessageReceiver receiver;
 
-    public SocketClient(MessageReceiver receiver, String token) throws URISyntaxException {
-        super(new URI(WEBSOCKET_URL), new Draft_6455(), headers, 0);
+    public SocketClient(MessageReceiver receiver, String token) {
+        super(serverUri, new Draft_6455(), headers, 0);
         this.receiver = receiver;
 
         if(token != null) {
@@ -28,7 +38,7 @@ public class SocketClient extends WebSocketClient {
     }
 
     @Override
-    public void onOpen(ServerHandshake handshakedata) {}
+    public void onOpen(ServerHandshake handshakeData) {}
 
     @Override
     public void onMessage(String message) {

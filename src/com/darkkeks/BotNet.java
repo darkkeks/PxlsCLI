@@ -49,7 +49,7 @@ public class BotNet extends Thread {
                         User user = placeQueue.poll();
                         if(user.canPlace()) {
                             if(user.tryPlace(task.getNext())) {
-                                task.successfulyPlaced();
+                                task.successfullyPlaced();
                                 refreshTimer--;
                             }
                         }
@@ -61,7 +61,7 @@ public class BotNet extends Thread {
 
                     while(!placeQueue.isEmpty() &&
                             placeQueue.peek().tryPlace(task.getNext())) {
-                        task.successfulyPlaced();
+                        task.successfullyPlaced();
                         refreshTimer--;
 
                         User user = placeQueue.poll();
@@ -77,7 +77,7 @@ public class BotNet extends Thread {
         }
     }
 
-    public BotNet addUser(User user) {
+    public void addUser(User user) {
         int id = Integer.parseInt(user.getToken().split("\\|")[0]);
         if(!users.containsKey(id)) {
             users.put(id, user);
@@ -85,6 +85,5 @@ public class BotNet extends Thread {
         } else {
             System.out.println("Tried to insert duplicate user");
         }
-        return this;
     }
 }
