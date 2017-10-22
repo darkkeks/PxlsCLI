@@ -108,7 +108,7 @@ public class BoardGraphics {
     }
 
     private void zoomOut(int zoomX, int zoomY) {
-        if(zoom > 1 / ZOOM_STEP) {
+        if(zoom > 1d / ZOOM_STEP) {
             zoom /= ZOOM_STEP;
             offsetX -= zoomX / (2 * zoom);
             offsetY -= zoomY / (2 * zoom);
