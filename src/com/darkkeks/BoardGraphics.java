@@ -20,6 +20,7 @@ public class BoardGraphics {
     private AffineTransform transform;
     private int offsetX, offsetY;
     private double zoom;
+    private boolean isShiftHeld, isCtrlHeld;
 
     public BoardGraphics(Board board) {
         this.board = board;
@@ -28,6 +29,7 @@ public class BoardGraphics {
         transform = canvas.getTransform();
 
         this.offsetX = this.offsetY = 0;
+        this.isShiftHeld = this.isCtrlHeld = false;
         this.zoom = 1;
 
         frame = new JFrame("PxlsCLI");
@@ -59,20 +61,42 @@ public class BoardGraphics {
         canvas.setTemplate(template);
     }
 
+    private double getMoveStep() {
+        if(isShiftHeld) return 1;
+        if(isCtrlHeld) return 10;
+        return MOVE_STEP / zoom;
+    }
+
+    private int getWidthInPixels() {
+        return (int)Math.ceil((double)WIDTH / zoom);
+    }
+
+    private int getHeightInPixels() {
+        return (int)Math.ceil((double)HEIGHT / zoom);
+    }
+
     private void moveUp() {
-        offsetY = (int)Math.max(0, offsetY - MOVE_STEP / zoom);
+        offsetY = (int)Math.max(0, offsetY - getMoveStep());
     }
 
     private void moveDown() {
-        offsetY = (int)Math.min(board.getHeight() - (int)Math.ceil((double)HEIGHT / zoom), offsetY + MOVE_STEP / zoom);
+        offsetY = (int)Math.min(board.getHeight() - getHeightInPixels(), offsetY + getMoveStep());
     }
 
     private void moveLeft() {
-        offsetX = (int)Math.max(0, offsetX - MOVE_STEP / zoom);
+        offsetX = (int)Math.max(0, offsetX - getMoveStep());
     }
 
     private void moveRight() {
-        offsetX = (int)Math.min(board.getWidth() - (int)Math.ceil((double)WIDTH / zoom), offsetX + MOVE_STEP / zoom);
+        offsetX = (int)Math.min(board.getWidth() - getWidthInPixels(), offsetX + getMoveStep());
+    }
+
+    private void zoomInCenter() {
+        zoomIn(WIDTH / 2, HEIGHT / 2);
+    }
+
+    private void zoomOutCenter() {
+        zoomOut(WIDTH / 2, HEIGHT / 2);
     }
 
     private void zoomIn(int zoomX, int zoomY) {
@@ -105,21 +129,29 @@ public class BoardGraphics {
             public void keyPressed(KeyEvent e) {
                 if(!board.isLoaded() || (template != null && !template.isLoaded()))
                     return;
-                if(e.getKeyCode() == KeyEvent.VK_UP) {
-                    moveUp();
-                } else if(e.getKeyCode() == KeyEvent.VK_DOWN) {
-                    moveDown();
-                } else if(e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    moveLeft();
-                } else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    moveRight();
-                }
+
+                int key = e.getKeyCode();
+                if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = true;
+                if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = true;
+                if (key == PxlsCLI.settings.getControlsUp()) moveUp();
+                if (key == PxlsCLI.settings.getControlsDown()) moveDown();
+                if (key == PxlsCLI.settings.getControlsLeft()) moveLeft();
+                if (key == PxlsCLI.settings.getControlsRight()) moveRight();
+                if (key == PxlsCLI.settings.getControlsZoomIn()) zoomInCenter();
+                if (key == PxlsCLI.settings.getControlsZoomOut()) zoomOutCenter();
+
                 updateTransform();
                 redraw();
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
+                if(!board.isLoaded() || (template != null && !template.isLoaded()))
+                    return;
+
+                int key = e.getKeyCode();
+                if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = false;
+                if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = false;
             }
         });
     }
