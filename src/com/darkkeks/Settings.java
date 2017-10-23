@@ -34,8 +34,6 @@ public class Settings {
         String fileAsString = sb.toString();
 
         sets = PxlsCLI.gson.parse(fileAsString).getAsJsonObject();
-
-        System.out.println(parseKeyCode("L"));
     }
 
     public String getTokensFilePath() {
@@ -50,8 +48,8 @@ public class Settings {
     public int getTemplateOffsetY() {
         return sets.get("templateOffsetY").getAsInt();
     }
-    public int getTemplateOpacity() {
-        return sets.get("templateOpacity").getAsInt();
+    public float getTemplateOpacity() {
+        return sets.get("templateOpacity").getAsFloat();
     }
 
     private JsonObject getControls() {

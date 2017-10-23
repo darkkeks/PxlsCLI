@@ -15,7 +15,7 @@ public class User extends MessageReceiver {
     private float cooldown = DEFAULT_COOLDOWN;
 
 
-    private boolean gotUserinfo = false;
+    private boolean gotUserInfo = false;
 
     public User(String token, UserProxy proxy) {
         this.token = token;

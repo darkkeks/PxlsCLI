@@ -3,7 +3,7 @@
   "templateURI": "https://i.imgur.com/dJixaNt.png",
   "templateOffsetX": 568,
   "templateOffsetY": 762,
-  "templateOpacity": 1,
+  "templateOpacity": 0.5,
   "controls": {
     "up": "up",
     "left": "left",
