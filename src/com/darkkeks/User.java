@@ -12,13 +12,17 @@ public class User extends MessageReceiver {
     private String banReason;
 
     private long cooldownStart;
-    private float cooldown;
+    private float cooldown = DEFAULT_COOLDOWN;
 
-    private boolean gotUserInfo;
+
+    private boolean gotUserinfo = false;
+
+    public User(String token, UserProxy proxy) {
+        this.token = token;
+        this.connect(new ProxiedSocketClient(this, proxy, token));
+    }
 
     public User(String token) {
-        this.gotUserInfo = false;
-        this.cooldown = Float.NaN;
         this.token = token;
         this.connect(token);
     }

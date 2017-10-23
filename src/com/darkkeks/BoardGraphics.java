@@ -155,9 +155,9 @@ public class BoardGraphics {
         frame.addMouseWheelListener((e) -> {
             int x = e.getX(), y = e.getY();
             if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) return;
-            if(e.getWheelRotation() < 0) { zoomIn(x, y); }
-            else { zoomOut(x, y); }
-
+            if(e.getWheelRotation() < 0) zoomIn(x, y);
+            else zoomOut(x, y);
+          
             checkBorders();
             updateTransform();
             redraw();

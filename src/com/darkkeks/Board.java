@@ -28,10 +28,6 @@ public class Board {
         return height;
     }
 
-    public int get(int x, int y) {
-        return data[y * width + x];
-    }
-
     public void set(int x, int y, byte color) {
         if(isLoaded)
             data[y * width + x] = color;

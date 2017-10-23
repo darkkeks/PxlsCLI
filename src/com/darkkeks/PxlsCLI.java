@@ -31,7 +31,7 @@ public class PxlsCLI {
                 settings.getTemplateOpacity());
         graphics.setTemplate(template);
 
-        new BoardUpdateUser(board, graphics);
+        //new BoardUpdateUser(board, graphics);
         new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
@@ -40,7 +40,7 @@ public class PxlsCLI {
 
         BotNet bot = new BotNet(new TaskGenerator(board, template));
         for(Object token : tokens) {
-            bot.addUser(new User((String)token));
+            bot.addUser(new User((String)token, new UserProxy("49.49.91.180", 3128)));
         }
         bot.start();
     }
