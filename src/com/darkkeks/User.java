@@ -42,7 +42,7 @@ public class User extends MessageReceiver {
         return false;
     }
 
-    public boolean gotUserinfo() {
+    public boolean gotUserInfo() {
         return gotUserInfo;
     }
 
@@ -89,5 +89,11 @@ public class User extends MessageReceiver {
             close();
             throw new IllegalStateException("Couldn't login");
         }
+    }
+
+    public int getId() {
+        if(token == null)
+            return -1;
+        return Integer.parseInt(this.getToken().split("\\|")[0]);
     }
 }

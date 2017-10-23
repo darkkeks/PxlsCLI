@@ -11,7 +11,7 @@ public class Color {
     public static final Color BACKGROUND = new Color((byte)-1, colorCodes[1] + 0xFF000000);
     public static final Color TRANSPARENT = new Color((byte)-2, 0);
 
-    private static Map<Byte, Color> colors = new HashMap<>();
+    private static final Map<Byte, Color> colors = new HashMap<>();
 
     static {
         for(byte i = 0; i < count; ++i) {

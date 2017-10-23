@@ -7,8 +7,8 @@ import java.net.URL;
 import java.util.Date;
 
 public class BoardLoadThread extends Thread {
-    private Board board;
-    private BoardGraphics graphics;
+    private final Board board;
+    private final BoardGraphics graphics;
 
     public BoardLoadThread(Board board, BoardGraphics graphics) {
         this.board = board;

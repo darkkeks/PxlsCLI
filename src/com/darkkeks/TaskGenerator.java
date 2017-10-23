@@ -4,10 +4,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TaskGenerator {
 
-    private Board board;
-    private Template template;
+    private final Board board;
+    private final Template template;
 
-    private LinkedBlockingQueue<Pixel> task;
+    private final LinkedBlockingQueue<Pixel> task;
 
     public TaskGenerator(Board board, Template template) {
         this.board = board;

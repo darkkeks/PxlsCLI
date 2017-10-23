@@ -4,11 +4,12 @@ import java.awt.image.BufferedImage;
 
 public class Template {
 
-    private BoardGraphics graphics;
+    private final BoardGraphics graphics;
 
-    private String url;
-    private int x, y;
-    private float opacity;
+    private final String url;
+    private final int x;
+    private final int y;
+    private final float opacity;
 
     private boolean isLoaded;
 

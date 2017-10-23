@@ -8,6 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 
 public class BoardGraphics {
 
@@ -20,6 +22,7 @@ public class BoardGraphics {
     private Template template;
     private BoardCanvas canvas;
     private JFrame frame;
+    private BoardClickListener boardClickListener;
 
     private AffineTransform transform;
     private int offsetX, offsetY,
@@ -66,6 +69,10 @@ public class BoardGraphics {
     public void setTemplate(Template template) {
         this.template = template;
         canvas.setTemplate(template);
+    }
+
+    public void setBoardClickListener(BoardClickListener listener) {
+        this.boardClickListener = listener;
     }
 
     private double getMoveStep() {
@@ -168,7 +175,13 @@ public class BoardGraphics {
 
     private void setupMouseListener() {
         frame.addMouseListener(new MouseListener() {
-            @Override public void mouseClicked(MouseEvent e) {}
+            @Override public void mouseClicked(MouseEvent e) {
+                try {
+                    Point2D boardPoint = transform.inverseTransform(new Point2D.Double(e.getX(), e.getY()), null);
+                } catch (NoninvertibleTransformException ex) {
+                    ex.printStackTrace();
+                }
+            }
 
             @Override
             public void mousePressed(MouseEvent e) {

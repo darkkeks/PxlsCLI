@@ -1,20 +1,13 @@
 package com.darkkeks;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-
 public class BotNet extends Thread {
 
-    private Map<Integer, User> users;
-    private LinkedBlockingQueue<User> placeQueue, loginQueue;
-    private TaskGenerator task;
+    private final UserProvider userProvider;
+    private final TaskGenerator task;
 
-    public BotNet(TaskGenerator task) {
-        users = new HashMap<>();
-        loginQueue = new LinkedBlockingQueue<>();
-        placeQueue = new LinkedBlockingQueue<>();
+    public BotNet(TaskGenerator task, UserProvider userProvider) {
         this.task = task;
+        this.userProvider = userProvider;
     }
 
     @Override
@@ -24,66 +17,34 @@ public class BotNet extends Thread {
         int refreshTimer = 30;
         while(true) {
             try {
-                int userCount = loginQueue.size();
-                while(!loginQueue.isEmpty() && userCount > 0) {
-                    User user = loginQueue.poll();
-                    if(user.isConnected() && user.gotUserinfo()) {
-                        System.out.println("Added " + user.getName() + " to place queue.");
-                        placeQueue.offer(user);
-                    } else if(!user.isClosed()){
-                        loginQueue.offer(user);
-                    } else {
-                        System.out.println("User disconnected " + user.getToken());
-                    }
-                    userCount--;
-                }
+                userProvider.checkAuth();
 
                 if(task.isEmpty() || refreshTimer <= 0) {
                     System.out.println("Refreshing task");
-                    refreshTimer = 30;
+                    refreshTimer = 60; // Every minute
                     task.generate();
                 } else {
-                    userCount = placeQueue.size();
-                    System.out.println("Users in queue: " + userCount);
-                    while(!placeQueue.isEmpty() && refreshTimer > 0 && userCount > 0) {
-                        User user = placeQueue.poll();
+                    boolean isPlaced = false;
+                    int count = userProvider.getCount();
+                    while(userProvider.hasNext() && count > 0) {
+                        User user = userProvider.getNext();
                         if(user.canPlace()) {
                             if(user.tryPlace(task.getNext())) {
                                 task.successfullyPlaced();
-                                refreshTimer--;
+                                isPlaced = true;
                             }
                         }
-                        if(!user.isClosed()) {
-                            placeQueue.offer(user);
-                        }
-                        userCount--;
-                    }
-
-                    while(!placeQueue.isEmpty() &&
-                            placeQueue.peek().tryPlace(task.getNext())) {
-                        task.successfullyPlaced();
                         refreshTimer--;
-
-                        User user = placeQueue.poll();
-                        if(!user.isClosed())
-                            placeQueue.offer(user);
+                        count--;
                     }
+                    if(isPlaced)
+                        System.out.println("Users in queue: " + userProvider.getCount());
                 }
 
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 break;
             }
-        }
-    }
-
-    public void addUser(User user) {
-        int id = Integer.parseInt(user.getToken().split("\\|")[0]);
-        if(!users.containsKey(id)) {
-            users.put(id, user);
-            loginQueue.offer(user);
-        } else {
-            System.out.println("Tried to insert duplicate user");
         }
     }
 }

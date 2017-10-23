@@ -1,8 +1,9 @@
 package com.darkkeks;
 
 public class Pixel {
-    private int x, y;
-    private int color;
+    private final int x;
+    private final int y;
+    private final int color;
 
     public Pixel(int x, int y, int color) {
         this.x = x;

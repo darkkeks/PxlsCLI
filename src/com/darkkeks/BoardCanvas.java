@@ -10,10 +10,11 @@ import java.awt.image.RescaleOp;
 
 public class BoardCanvas extends JPanel {
 
-    private int width, height;
-    private BufferedImage canvas;
-    private AffineTransform transform;
-    private AffineTransform templateTransform;
+    private final int width;
+    private final int height;
+    private final BufferedImage canvas;
+    private final AffineTransform transform;
+    private final AffineTransform templateTransform;
     private Template template;
 
     public BoardCanvas(int width, int height, int boardWidth, int boardHeight) {

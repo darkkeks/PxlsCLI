@@ -8,7 +8,7 @@ import java.net.URL;
 
 public class TemplateLoadThread extends Thread {
 
-    private Template template;
+    private final Template template;
 
     public TemplateLoadThread(Template template) {
         this.template = template;
