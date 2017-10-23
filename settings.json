@@ -5,13 +5,13 @@
   "templateOffsetY": 762,
   "templateOpacity": 1,
   "controls": {
-    "up": 38,
-    "left": 37,
-    "right": 39,
-    "down": 40,
-    "zoomIn": 107,
-    "zoomOut": 109,
-    "shift": 16,
-    "ctrl": 17
+    "up": "up",
+    "left": "left",
+    "right": "right",
+    "down": "down",
+    "zoomIn": "+",
+    "zoomOut": "-",
+    "shift": "shift",
+    "ctrl": "ctrl"
   }
 }

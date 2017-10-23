@@ -55,7 +55,7 @@ public abstract class MessageReceiver {
                 handleUsers(msg.get("count").getAsInt());
             } else if(type.equalsIgnoreCase("userinfo")) {
                 System.out.println(message);
-                handleUserinfo(msg.get("username").getAsString(),
+                handleUserInfo(msg.get("username").getAsString(),
                         msg.get("role").getAsString(),
                         msg.get("banned").getAsBoolean(),
                         msg.get("banExpiry").getAsLong(),
@@ -75,7 +75,7 @@ public abstract class MessageReceiver {
 
     protected void handleCanUndo(long time) {}
 
-    protected void handleUserinfo(String username, String role, boolean banned, long banExpiry, String ban_reason, String method) {}
+    protected void handleUserInfo(String username, String role, boolean banned, long banExpiry, String ban_reason, String method) {}
 
     protected void handleUsers(int count) {}
 

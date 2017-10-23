@@ -1,8 +1,12 @@
 package com.darkkeks;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 
 public class BoardGraphics {
@@ -18,8 +22,8 @@ public class BoardGraphics {
     private JFrame frame;
 
     private AffineTransform transform;
-    private int offsetX, offsetY;
-    private double zoom;
+    private int offsetX, offsetY, mousePressedX, mousePressedY, mouseAccumulatedMoveX, mouseAccumulatedMoveY;
+    private int zoom;
     private boolean isShiftHeld, isCtrlHeld;
 
     public BoardGraphics(Board board) {
@@ -40,6 +44,7 @@ public class BoardGraphics {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setupKeyListener();
         setupMouseWheelListener();
+        setupMouseEventListeners();
     }
 
     public void updateBoard() {
@@ -75,22 +80,6 @@ public class BoardGraphics {
         return (int)Math.ceil((double)HEIGHT / zoom);
     }
 
-    private void moveUp() {
-        offsetY = (int)Math.max(0, offsetY - getMoveStep());
-    }
-
-    private void moveDown() {
-        offsetY = (int)Math.min(board.getHeight() - getHeightInPixels(), offsetY + getMoveStep());
-    }
-
-    private void moveLeft() {
-        offsetX = (int)Math.max(0, offsetX - getMoveStep());
-    }
-
-    private void moveRight() {
-        offsetX = (int)Math.min(board.getWidth() - getWidthInPixels(), offsetX + getMoveStep());
-    }
-
     private void zoomInCenter() {
         zoomIn(WIDTH / 2, HEIGHT / 2);
     }
@@ -108,11 +97,18 @@ public class BoardGraphics {
     }
 
     private void zoomOut(int zoomX, int zoomY) {
-        if(zoom > 1d / ZOOM_STEP) {
+        if(zoom > 1) {
             zoom /= ZOOM_STEP;
             offsetX -= zoomX / (2 * zoom);
             offsetY -= zoomY / (2 * zoom);
         }
+    }
+
+    private void checkBorders() {
+        offsetX = Math.max(offsetX, -getWidthInPixels() / 2);
+        offsetX = Math.min(offsetX, board.getWidth() - getWidthInPixels() / 2);
+        offsetY = Math.max(offsetY, -getHeightInPixels() / 2);
+        offsetY = Math.min(offsetY, board.getHeight() - getHeightInPixels() / 2);
     }
 
     private void updateTransform() {
@@ -133,23 +129,22 @@ public class BoardGraphics {
                 int key = e.getKeyCode();
                 if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = true;
                 if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = true;
-                if (key == PxlsCLI.settings.getControlsUp()) moveUp();
-                if (key == PxlsCLI.settings.getControlsDown()) moveDown();
-                if (key == PxlsCLI.settings.getControlsLeft()) moveLeft();
-                if (key == PxlsCLI.settings.getControlsRight()) moveRight();
+                if (key == PxlsCLI.settings.getControlsUp()) offsetY -= getMoveStep();
+                if (key == PxlsCLI.settings.getControlsDown()) offsetY += getMoveStep();
+                if (key == PxlsCLI.settings.getControlsLeft()) offsetX -= getMoveStep();
+                if (key == PxlsCLI.settings.getControlsRight()) offsetX += getMoveStep();
                 if (key == PxlsCLI.settings.getControlsZoomIn()) zoomInCenter();
                 if (key == PxlsCLI.settings.getControlsZoomOut()) zoomOutCenter();
 
+                checkBorders();
                 updateTransform();
                 redraw();
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
-                if(!board.isLoaded() || (template != null && !template.isLoaded()))
-                    return;
-
                 int key = e.getKeyCode();
+
                 if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = false;
                 if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = false;
             }
@@ -158,13 +153,70 @@ public class BoardGraphics {
 
     private void setupMouseWheelListener() {
         frame.addMouseWheelListener((e) -> {
-            if(e.getWheelRotation() < 0) {
-                zoomIn(e.getX(), e.getY());
-            } else {
-                zoomOut(e.getX(), e.getY());
-            }
+            int x = e.getX(), y = e.getY();
+            if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) return;
+            if(e.getWheelRotation() < 0) { zoomIn(x, y); }
+            else { zoomOut(x, y); }
+
+            checkBorders();
             updateTransform();
             redraw();
+        });
+    }
+
+    private void setupMouseEventListeners() {
+        frame.addMouseListener(new MouseListener() {
+            @Override public void mouseClicked(MouseEvent e) { }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mousePressedX = e.getX();
+                mousePressedY = e.getY();
+                mouseAccumulatedMoveX = 0;
+                mouseAccumulatedMoveY = 0;
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                mousePressedX = 0;
+                mousePressedY = 0;
+                mouseAccumulatedMoveX = 0;
+                mouseAccumulatedMoveY = 0;
+            }
+
+            @Override public void mouseEntered(MouseEvent e) { }
+
+            @Override public void mouseExited(MouseEvent e) { }
+        });
+
+        frame.addMouseMotionListener(new MouseMotionListener() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                int dx = mousePressedX - e.getX(),
+                    dy = mousePressedY - e.getY();
+
+                mouseAccumulatedMoveX += dx;
+                mouseAccumulatedMoveY += dy;
+
+                if (Math.abs(mouseAccumulatedMoveX) >= zoom) {
+                    offsetX += mouseAccumulatedMoveX / zoom;
+                    mouseAccumulatedMoveX -= zoom * (mouseAccumulatedMoveX / zoom);
+                }
+
+                if (Math.abs(mouseAccumulatedMoveY) >= zoom) {
+                    offsetY += mouseAccumulatedMoveY / zoom;
+                    mouseAccumulatedMoveY -= zoom * (mouseAccumulatedMoveY / zoom);
+                }
+
+                mousePressedX = e.getX();
+                mousePressedY = e.getY();
+
+                checkBorders();
+                updateTransform();
+                redraw();
+            }
+
+            @Override public void mouseMoved(MouseEvent e) { }
         });
     }
 }
