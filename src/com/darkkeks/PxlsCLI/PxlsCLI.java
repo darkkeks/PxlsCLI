@@ -1,5 +1,15 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI;
 
+import com.darkkeks.PxlsCLI.board.Board;
+import com.darkkeks.PxlsCLI.board.BoardGraphics;
+import com.darkkeks.PxlsCLI.board.Template;
+import com.darkkeks.PxlsCLI.bot.BotNet;
+import com.darkkeks.PxlsCLI.bot.TaskGenerator;
+import com.darkkeks.PxlsCLI.bot.User;
+import com.darkkeks.PxlsCLI.bot.UserProvider;
+import com.darkkeks.PxlsCLI.network.BoardLoadThread;
+import com.darkkeks.PxlsCLI.board.BoardUpdateUser;
+import com.darkkeks.PxlsCLI.network.TemplateLoadThread;
 import com.google.gson.JsonParser;
 
 import java.io.File;
@@ -26,7 +36,8 @@ public class PxlsCLI {
                 settings.getTemplateURI(),
                 settings.getTemplateOffsetX(),
                 settings.getTemplateOffsetY(),
-                settings.getTemplateOpacity());
+                settings.getTemplateOpacity(),
+                settings.getTemplateReplacePixels());
         graphics.setTemplate(template);
 
         new BoardUpdateUser(board, graphics);

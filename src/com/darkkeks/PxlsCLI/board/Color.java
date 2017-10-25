@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
 
 import java.util.HashMap;
 import java.util.Map;

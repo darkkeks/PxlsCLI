@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.bot;
 
 public class BotNet extends Thread {
 

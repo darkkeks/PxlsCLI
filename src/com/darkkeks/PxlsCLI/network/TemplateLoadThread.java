@@ -1,4 +1,6 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.network;
+
+import com.darkkeks.PxlsCLI.board.Template;
 
 import javax.imageio.ImageIO;
 import java.awt.Image;

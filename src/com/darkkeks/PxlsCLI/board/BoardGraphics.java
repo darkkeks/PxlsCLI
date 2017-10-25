@@ -1,4 +1,6 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
+
+import com.darkkeks.PxlsCLI.PxlsCLI;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;

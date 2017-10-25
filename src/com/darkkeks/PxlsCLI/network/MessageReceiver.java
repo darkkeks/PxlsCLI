@@ -1,5 +1,6 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.network;
 
+import com.darkkeks.PxlsCLI.PxlsCLI;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 

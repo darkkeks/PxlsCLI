@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
 
 public class Pixel {
     private final int x;

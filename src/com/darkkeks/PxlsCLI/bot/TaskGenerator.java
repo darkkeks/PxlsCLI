@@ -1,4 +1,9 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.bot;
+
+import com.darkkeks.PxlsCLI.board.Board;
+import com.darkkeks.PxlsCLI.board.Color;
+import com.darkkeks.PxlsCLI.board.Pixel;
+import com.darkkeks.PxlsCLI.board.Template;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -32,11 +37,11 @@ public class TaskGenerator {
         LinkedBlockingQueue<Pixel> q = new LinkedBlockingQueue<>();
         int[] dx = {1, 0, -1, 0};
         int[] dy = {0, 1, 0, -1};
-        for(int i = _x; i < _x + n; ++i) {
-            for(int j = _y; j < _y + m; ++j) {
+        for(int i = Math.max(0, _x); i < Math.min(_x + n, board.getWidth()); ++i) {
+            for(int j = Math.max(0, _y); j < Math.min(_y + m, board.getHeight()); ++j) {
                 int x = i - _x, y = j - _y;
                 if(brd[i][j] >= 0 && !used[x][y]) {
-                    if(brd[i][j] != tpl[x][y])
+                    if(template.getReplacePixels() && brd[i][j] != tpl[x][y])
                         if(tpl[x][y] != Color.TRANSPARENT.id)
                             task.offer(new Pixel(i, j, tpl[x][y]));
                         else
@@ -49,17 +54,19 @@ public class TaskGenerator {
 
                         for(int d = 0; d < 4; ++d) {
                             int nx = cur.getX() + dx[d], ny = cur.getY() + dy[d];
-                            if(nx >= _x && ny >= _y &&
-                                    nx < _x + n && ny < _y + m &&
+                            if(nx >= _x && ny >= _y && nx >= 0 && ny >= 0 &&
+                                    nx < _x + n && ny < _y + m && nx < board.getWidth() && ny < board.getHeight() &&
                                     !used[nx - _x][ny - _y]) {
                                 used[nx - _x][ny - _y] = true;
                                 q.offer(new Pixel(nx, ny, tpl[nx - _x][ny - _y]));
 
                                 if(tpl[nx - _x][ny - _y] >= 0) {
-                                    if(brd[nx][ny] != tpl[nx - _x][ny - _y])
+                                    if(brd[nx][ny] != tpl[nx - _x][ny - _y] &&
+                                            (template.getReplacePixels() || brd[nx][ny] == -1 || brd[nx][ny] == 1))
                                         task.offer(new Pixel(nx, ny, tpl[nx - _x][ny - _y]));
                                 } else {
-                                    if(brd[nx][ny] != 1 && brd[nx][ny] != -1) {
+                                    if(template.getReplacePixels() &&
+                                            brd[nx][ny] != 1 && brd[nx][ny] != -1) {
                                         task.offer(new Pixel(nx, ny, 1));
                                     }
                                 }

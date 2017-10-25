@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
 
 import java.awt.image.BufferedImage;
 
@@ -10,18 +10,20 @@ public class Template {
     private final int x;
     private final int y;
     private final float opacity;
-
-    private boolean isLoaded;
+    private final boolean replacePixels;
 
     private BufferedImage imageData;
+
+    private boolean isLoaded;
     private byte[] data;
 
-    public Template(BoardGraphics graphics, String url, int x, int y, float opacity) {
+    public Template(BoardGraphics graphics, String url, int x, int y, float opacity, boolean replacePixels) {
         this.url = url;
         this.x = x;
         this.y = y;
         this.opacity = opacity;
         this.graphics = graphics;
+        this.replacePixels = replacePixels;
         this.isLoaded = false;
     }
 
@@ -47,6 +49,10 @@ public class Template {
 
     public float getOpacity() {
         return opacity;
+    }
+
+    public boolean getReplacePixels() {
+        return replacePixels;
     }
 
     public BufferedImage getImageData() {

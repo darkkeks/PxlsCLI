@@ -1,4 +1,7 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.network;
+
+import com.darkkeks.PxlsCLI.board.Board;
+import com.darkkeks.PxlsCLI.board.BoardGraphics;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

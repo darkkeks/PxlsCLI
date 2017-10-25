@@ -1,4 +1,6 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
+
+import com.darkkeks.PxlsCLI.network.MessageReceiver;
 
 public class BoardUpdateUser extends MessageReceiver {
 

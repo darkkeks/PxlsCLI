@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +50,9 @@ public class Settings {
     }
     public float getTemplateOpacity() {
         return sets.get("templateOpacity").getAsFloat();
+    }
+    public boolean getTemplateReplacePixels() {
+        return sets.get("templateReplacePixels").getAsBoolean();
     }
 
     private JsonObject getControls() {

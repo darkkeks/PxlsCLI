@@ -1,4 +1,9 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.bot;
+
+import com.darkkeks.PxlsCLI.board.Pixel;
+import com.darkkeks.PxlsCLI.network.MessageReceiver;
+import com.darkkeks.PxlsCLI.network.ProxiedSocketClient;
+import com.darkkeks.PxlsCLI.network.UserProxy;
 
 import java.util.Date;
 

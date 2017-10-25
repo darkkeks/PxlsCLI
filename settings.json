@@ -4,6 +4,7 @@
   "templateOffsetX": 568,
   "templateOffsetY": 762,
   "templateOpacity": 0.5,
+  "templateReplacePixels": true,
   "controls": {
     "up": "up",
     "left": "left",
