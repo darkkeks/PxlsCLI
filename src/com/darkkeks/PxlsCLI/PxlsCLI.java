@@ -1,5 +1,12 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI;
 
+import com.darkkeks.PxlsCLI.board.Board;
+import com.darkkeks.PxlsCLI.board.BoardGraphics;
+import com.darkkeks.PxlsCLI.board.Template;
+import com.darkkeks.PxlsCLI.bot.*;
+import com.darkkeks.PxlsCLI.network.BoardLoadThread;
+import com.darkkeks.PxlsCLI.board.BoardUpdateUser;
+import com.darkkeks.PxlsCLI.network.TemplateLoadThread;
 import com.google.gson.JsonParser;
 
 import java.io.File;
@@ -11,14 +18,12 @@ import java.util.ArrayList;
 
 public class PxlsCLI {
 
-    public static int Counter = 0;
-
     private static final int WIDTH = 2000;
     private static final int HEIGHT = 2000;
 
     public static final JsonParser gson = new JsonParser();
 
-    public static Settings settings = new Settings("settings.json");
+    public static final Settings settings = new Settings("settings.json");
 
     private void start() {
         Board board = new Board(WIDTH, HEIGHT);
@@ -28,20 +33,24 @@ public class PxlsCLI {
                 settings.getTemplateURI(),
                 settings.getTemplateOffsetX(),
                 settings.getTemplateOffsetY(),
-                settings.getTemplateOpacity());
+                settings.getTemplateOpacity(),
+                settings.getTemplateReplacePixels());
         graphics.setTemplate(template);
 
-        //new BoardUpdateUser(board, graphics);
+        new BoardUpdateUser(board, graphics);
         new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
         Object[] tokens = readTokens(settings.getTokensFilePath());
         System.out.println("Read " + tokens.length + " tokens.");
 
-        BotNet bot = new BotNet(new TaskGenerator(board, template));
+        UserProvider userProvider = new UserProvider();
         for(Object token : tokens) {
-            bot.addUser(new User((String)token, new UserProxy("49.49.91.180", 3128)));
+            userProvider.add(new User((String)token));
         }
+
+
+        ManualBot bot = new ManualBot(board, template, userProvider, graphics);
         bot.start();
     }
 

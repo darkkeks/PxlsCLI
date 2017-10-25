@@ -1,4 +1,9 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.bot;
+
+import com.darkkeks.PxlsCLI.board.Pixel;
+import com.darkkeks.PxlsCLI.network.MessageReceiver;
+import com.darkkeks.PxlsCLI.network.ProxiedSocketClient;
+import com.darkkeks.PxlsCLI.network.UserProxy;
 
 import java.util.Date;
 
@@ -15,7 +20,7 @@ public class User extends MessageReceiver {
     private float cooldown = DEFAULT_COOLDOWN;
 
 
-    private boolean gotUserinfo = false;
+    private boolean gotUserInfo = false;
 
     public User(String token, UserProxy proxy) {
         this.token = token;
@@ -42,7 +47,7 @@ public class User extends MessageReceiver {
         return false;
     }
 
-    public boolean gotUserinfo() {
+    public boolean gotUserInfo() {
         return gotUserInfo;
     }
 
@@ -89,5 +94,11 @@ public class User extends MessageReceiver {
             close();
             throw new IllegalStateException("Couldn't login");
         }
+    }
+
+    public int getId() {
+        if(token == null)
+            return -1;
+        return Integer.parseInt(this.getToken().split("\\|")[0]);
     }
 }

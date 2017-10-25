@@ -1,9 +1,11 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
+
+import com.darkkeks.PxlsCLI.network.MessageReceiver;
 
 public class BoardUpdateUser extends MessageReceiver {
 
-    private Board board;
-    private BoardGraphics graphics;
+    private final Board board;
+    private final BoardGraphics graphics;
 
     public BoardUpdateUser(Board board, BoardGraphics graphics) {
         this.board = board;

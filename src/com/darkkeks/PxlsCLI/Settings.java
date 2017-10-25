@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,8 +34,6 @@ public class Settings {
         String fileAsString = sb.toString();
 
         sets = PxlsCLI.gson.parse(fileAsString).getAsJsonObject();
-
-        System.out.println(parseKeyCode("L"));
     }
 
     public String getTokensFilePath() {
@@ -50,8 +48,11 @@ public class Settings {
     public int getTemplateOffsetY() {
         return sets.get("templateOffsetY").getAsInt();
     }
-    public int getTemplateOpacity() {
-        return sets.get("templateOpacity").getAsInt();
+    public float getTemplateOpacity() {
+        return sets.get("templateOpacity").getAsFloat();
+    }
+    public boolean getTemplateReplacePixels() {
+        return sets.get("templateReplacePixels").getAsBoolean();
     }
 
     private JsonObject getControls() {

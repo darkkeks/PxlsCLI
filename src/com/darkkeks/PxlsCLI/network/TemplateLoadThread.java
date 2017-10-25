@@ -1,4 +1,6 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.network;
+
+import com.darkkeks.PxlsCLI.board.Template;
 
 import javax.imageio.ImageIO;
 import java.awt.Image;
@@ -8,7 +10,7 @@ import java.net.URL;
 
 public class TemplateLoadThread extends Thread {
 
-    private Template template;
+    private final Template template;
 
     public TemplateLoadThread(Template template) {
         this.template = template;

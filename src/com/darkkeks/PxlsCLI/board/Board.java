@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
 
 public class Board {
     private int width, height;
@@ -28,8 +28,18 @@ public class Board {
         return height;
     }
 
+    public boolean checkRange(int x, int y) {
+        return x >= 0 && y >= 0 && x < width && y < height;
+    }
+
+    public byte get(int x, int y) {
+        if(isLoaded && checkRange(x, y))
+            return data[y * width + x];
+        return -1;
+    }
+
     public void set(int x, int y, byte color) {
-        if(isLoaded)
+        if(isLoaded && checkRange(x, y))
             data[y * width + x] = color;
     }
 

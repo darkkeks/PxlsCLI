@@ -1,26 +1,29 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
 
 import java.awt.image.BufferedImage;
 
 public class Template {
 
-    private BoardGraphics graphics;
+    private final BoardGraphics graphics;
 
-    private String url;
-    private int x, y;
-    private float opacity;
-
-    private boolean isLoaded;
+    private final String url;
+    private final int x;
+    private final int y;
+    private final float opacity;
+    private final boolean replacePixels;
 
     private BufferedImage imageData;
+
+    private boolean isLoaded;
     private byte[] data;
 
-    public Template(BoardGraphics graphics, String url, int x, int y, float opacity) {
+    public Template(BoardGraphics graphics, String url, int x, int y, float opacity, boolean replacePixels) {
         this.url = url;
         this.x = x;
         this.y = y;
         this.opacity = opacity;
         this.graphics = graphics;
+        this.replacePixels = replacePixels;
         this.isLoaded = false;
     }
 
@@ -46,6 +49,10 @@ public class Template {
 
     public float getOpacity() {
         return opacity;
+    }
+
+    public boolean getReplacePixels() {
+        return replacePixels;
     }
 
     public BufferedImage getImageData() {
@@ -96,5 +103,17 @@ public class Template {
                 current++;
             }
         }
+    }
+
+    public boolean checkRange(int x, int y) {
+        return x >= this.x && y >= this.y &&
+                x < this.x + this.getWidth() &&
+                y < this.y + this.getHeight();
+    }
+
+    public byte get(int x, int y) {
+        if(isLoaded && checkRange(x, y))
+            return data[(y - this.y) * getWidth() + (x - this.x)];
+        return -2;
     }
 }

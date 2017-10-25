@@ -1,4 +1,6 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.board;
+
+import com.darkkeks.PxlsCLI.PxlsCLI;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -8,22 +10,27 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.geom.Point2D;
 
 public class BoardGraphics {
 
     private static final int WIDTH = 500;
     private static final int HEIGHT = 500;
     private static final int MOVE_STEP = 250;
-    private static final int ZOOM_STEP = 2;
+    private static final double ZOOM_STEP = Math.sqrt(2);
 
     private Board board;
     private Template template;
     private BoardCanvas canvas;
     private JFrame frame;
+    private BoardClickListener boardClickListener;
 
     private AffineTransform transform;
-    private int offsetX, offsetY, mousePressedX, mousePressedY, mouseAccumulatedMoveX, mouseAccumulatedMoveY;
-    private int zoom;
+    private int offsetX, offsetY,
+            mousePressedX, mousePressedY,
+            mouseAccumulatedMoveX, mouseAccumulatedMoveY;
+    private double zoom;
     private boolean isShiftHeld, isCtrlHeld;
 
     public BoardGraphics(Board board) {
@@ -44,7 +51,7 @@ public class BoardGraphics {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setupKeyListener();
         setupMouseWheelListener();
-        setupMouseEventListeners();
+        setupMouseListener();
     }
 
     public void updateBoard() {
@@ -64,6 +71,10 @@ public class BoardGraphics {
     public void setTemplate(Template template) {
         this.template = template;
         canvas.setTemplate(template);
+    }
+
+    public void setBoardClickListener(BoardClickListener listener) {
+        this.boardClickListener = listener;
     }
 
     private double getMoveStep() {
@@ -90,17 +101,17 @@ public class BoardGraphics {
 
     private void zoomIn(int zoomX, int zoomY) {
         if(zoom < 128) {
-            offsetX += zoomX / (2 * zoom);
-            offsetY += zoomY / (2 * zoom);
             zoom *= ZOOM_STEP;
+            offsetX += (ZOOM_STEP - 1) * zoomX / zoom;
+            offsetY += (ZOOM_STEP - 1) * zoomY / zoom;
         }
     }
 
     private void zoomOut(int zoomX, int zoomY) {
-        if(zoom > 1) {
+        if(zoom - 1 > 1e-9) { // floating-point comparison epsilon
+            offsetX -= (ZOOM_STEP - 1) * zoomX / zoom;
+            offsetY -= (ZOOM_STEP - 1) * zoomY / zoom;
             zoom /= ZOOM_STEP;
-            offsetX -= zoomX / (2 * zoom);
-            offsetY -= zoomY / (2 * zoom);
         }
     }
 
@@ -152,7 +163,7 @@ public class BoardGraphics {
     }
 
     private void setupMouseWheelListener() {
-        frame.addMouseWheelListener((e) -> {
+        canvas.addMouseWheelListener((e) -> {
             int x = e.getX(), y = e.getY();
             if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) return;
             if(e.getWheelRotation() < 0) zoomIn(x, y);
@@ -164,9 +175,23 @@ public class BoardGraphics {
         });
     }
 
-    private void setupMouseEventListeners() {
-        frame.addMouseListener(new MouseListener() {
-            @Override public void mouseClicked(MouseEvent e) { }
+    private void setupMouseListener() {
+        canvas.addMouseListener(new MouseListener() {
+            @Override public void mouseClicked(MouseEvent e) {
+                try {
+                    Point2D boardPoint = transform.inverseTransform(new Point2D.Double(e.getX(), e.getY()), null);
+
+                    if(boardClickListener != null && board.isLoaded()) {
+                        int x = (int)boardPoint.getX();
+                        int y = (int)boardPoint.getY();
+                        if(board.checkRange(x, y)) {
+                            boardClickListener.onClick(x, y);
+                        }
+                    }
+                } catch (NoninvertibleTransformException ex) {
+                    ex.printStackTrace();
+                }
+            }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -177,35 +202,27 @@ public class BoardGraphics {
             }
 
             @Override
-            public void mouseReleased(MouseEvent e) {
-                mousePressedX = 0;
-                mousePressedY = 0;
-                mouseAccumulatedMoveX = 0;
-                mouseAccumulatedMoveY = 0;
-            }
+            public void mouseReleased(MouseEvent e) {}
 
-            @Override public void mouseEntered(MouseEvent e) { }
+            @Override public void mouseEntered(MouseEvent e) {}
 
-            @Override public void mouseExited(MouseEvent e) { }
+            @Override public void mouseExited(MouseEvent e) {}
         });
 
-        frame.addMouseMotionListener(new MouseMotionListener() {
+        canvas.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                int dx = mousePressedX - e.getX(),
-                    dy = mousePressedY - e.getY();
-
-                mouseAccumulatedMoveX += dx;
-                mouseAccumulatedMoveY += dy;
+                mouseAccumulatedMoveX += mousePressedX - e.getX();
+                mouseAccumulatedMoveY += mousePressedY - e.getY();
 
                 if (Math.abs(mouseAccumulatedMoveX) >= zoom) {
-                    offsetX += mouseAccumulatedMoveX / zoom;
-                    mouseAccumulatedMoveX -= zoom * (mouseAccumulatedMoveX / zoom);
+                    offsetX += Math.round(mouseAccumulatedMoveX / zoom);
+                    mouseAccumulatedMoveX -= zoom * Math.round(mouseAccumulatedMoveX / zoom);
                 }
 
                 if (Math.abs(mouseAccumulatedMoveY) >= zoom) {
-                    offsetY += mouseAccumulatedMoveY / zoom;
-                    mouseAccumulatedMoveY -= zoom * (mouseAccumulatedMoveY / zoom);
+                    offsetY += Math.round(mouseAccumulatedMoveY / zoom);
+                    mouseAccumulatedMoveY -= zoom * Math.round(mouseAccumulatedMoveY / zoom);
                 }
 
                 mousePressedX = e.getX();
@@ -216,7 +233,7 @@ public class BoardGraphics {
                 redraw();
             }
 
-            @Override public void mouseMoved(MouseEvent e) { }
+            @Override public void mouseMoved(MouseEvent e) {}
         });
     }
 }

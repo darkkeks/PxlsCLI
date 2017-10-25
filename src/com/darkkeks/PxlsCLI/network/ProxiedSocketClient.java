@@ -1,4 +1,4 @@
-package com.darkkeks;
+package com.darkkeks.PxlsCLI.network;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
