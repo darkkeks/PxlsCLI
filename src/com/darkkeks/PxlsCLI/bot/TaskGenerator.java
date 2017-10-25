@@ -9,6 +9,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TaskGenerator {
 
+    private static final int[] dx = {1, 0, -1, 0};
+    private static final int[] dy = {0, 1, 0, -1};
+
     private final Board board;
     private final Template template;
 
@@ -35,8 +38,6 @@ public class TaskGenerator {
         boolean[][] used = new boolean[n][m];
 
         LinkedBlockingQueue<Pixel> q = new LinkedBlockingQueue<>();
-        int[] dx = {1, 0, -1, 0};
-        int[] dy = {0, 1, 0, -1};
         for(int i = Math.max(0, _x); i < Math.min(_x + n, board.getWidth()); ++i) {
             for(int j = Math.max(0, _y); j < Math.min(_y + m, board.getHeight()); ++j) {
                 int x = i - _x, y = j - _y;

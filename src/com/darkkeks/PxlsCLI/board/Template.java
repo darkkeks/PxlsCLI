@@ -104,4 +104,16 @@ public class Template {
             }
         }
     }
+
+    public boolean checkRange(int x, int y) {
+        return x >= this.x && y >= this.y &&
+                x < this.x + this.getWidth() &&
+                y < this.y + this.getHeight();
+    }
+
+    public byte get(int x, int y) {
+        if(isLoaded && checkRange(x, y))
+            return data[(y - this.y) * getWidth() + (x - this.x)];
+        return -2;
+    }
 }

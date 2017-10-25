@@ -3,10 +3,7 @@ package com.darkkeks.PxlsCLI;
 import com.darkkeks.PxlsCLI.board.Board;
 import com.darkkeks.PxlsCLI.board.BoardGraphics;
 import com.darkkeks.PxlsCLI.board.Template;
-import com.darkkeks.PxlsCLI.bot.BotNet;
-import com.darkkeks.PxlsCLI.bot.TaskGenerator;
-import com.darkkeks.PxlsCLI.bot.User;
-import com.darkkeks.PxlsCLI.bot.UserProvider;
+import com.darkkeks.PxlsCLI.bot.*;
 import com.darkkeks.PxlsCLI.network.BoardLoadThread;
 import com.darkkeks.PxlsCLI.board.BoardUpdateUser;
 import com.darkkeks.PxlsCLI.network.TemplateLoadThread;
@@ -52,7 +49,8 @@ public class PxlsCLI {
             userProvider.add(new User((String)token));
         }
 
-        BotNet bot = new BotNet(new TaskGenerator(board, template), userProvider);
+
+        ManualBot bot = new ManualBot(board, template, userProvider, graphics);
         bot.start();
     }
 

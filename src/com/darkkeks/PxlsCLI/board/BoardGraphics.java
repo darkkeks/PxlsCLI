@@ -163,7 +163,7 @@ public class BoardGraphics {
     }
 
     private void setupMouseWheelListener() {
-        frame.addMouseWheelListener((e) -> {
+        canvas.addMouseWheelListener((e) -> {
             int x = e.getX(), y = e.getY();
             if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) return;
             if(e.getWheelRotation() < 0) zoomIn(x, y);
@@ -176,10 +176,18 @@ public class BoardGraphics {
     }
 
     private void setupMouseListener() {
-        frame.addMouseListener(new MouseListener() {
+        canvas.addMouseListener(new MouseListener() {
             @Override public void mouseClicked(MouseEvent e) {
                 try {
                     Point2D boardPoint = transform.inverseTransform(new Point2D.Double(e.getX(), e.getY()), null);
+
+                    if(boardClickListener != null && board.isLoaded()) {
+                        int x = (int)boardPoint.getX();
+                        int y = (int)boardPoint.getY();
+                        if(board.checkRange(x, y)) {
+                            boardClickListener.onClick(x, y);
+                        }
+                    }
                 } catch (NoninvertibleTransformException ex) {
                     ex.printStackTrace();
                 }
@@ -201,7 +209,7 @@ public class BoardGraphics {
             @Override public void mouseExited(MouseEvent e) {}
         });
 
-        frame.addMouseMotionListener(new MouseMotionListener() {
+        canvas.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 mouseAccumulatedMoveX += mousePressedX - e.getX();
