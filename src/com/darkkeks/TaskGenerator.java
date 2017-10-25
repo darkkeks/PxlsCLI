@@ -87,7 +87,7 @@ public class TaskGenerator {
         return task.peek();
     }
 
-    public void successfulyPlaced() {
+    public void successfullyPlaced() {
         task.poll();
     }
 

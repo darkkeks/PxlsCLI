@@ -8,7 +8,7 @@ public class BoardUpdateUser extends MessageReceiver {
     public BoardUpdateUser(Board board, BoardGraphics graphics) {
         this.board = board;
         this.graphics = graphics;
-        connect(null);
+        connect("");
     }
 
     @Override

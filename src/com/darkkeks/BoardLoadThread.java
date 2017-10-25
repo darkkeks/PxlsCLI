@@ -23,20 +23,20 @@ public class BoardLoadThread extends Thread {
 
             URL url = new URL("https://pxls.space/boarddata");
 
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
             InputStream is = url.openStream();
 
             byte[] row = new byte[16384];
 
             int n;
             while ((n = is.read(row)) > 0) {
-                baos.write(row, 0, n);
+                stream.write(row, 0, n);
             }
 
             System.out.println("Loaded board");
-            System.out.println("Took " + (new Date().getTime() - start.getTime()) + "milis");
+            System.out.println("Took " + (new Date().getTime() - start.getTime()) + "ms");
 
-            board.setData(baos.toByteArray());
+            board.setData(stream.toByteArray());
             graphics.updateBoard();
         } catch (IOException e) {
             System.err.printf("Failed to load board data");

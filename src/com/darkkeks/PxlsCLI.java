@@ -1,12 +1,17 @@
 package com.darkkeks;
 
-import com.google.gson.*;
+import com.google.gson.JsonParser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.BufferedReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class PxlsCLI {
+
+    public static int Counter = 0;
 
     private static final int WIDTH = 2000;
     private static final int HEIGHT = 2000;
@@ -26,7 +31,7 @@ public class PxlsCLI {
                 settings.getTemplateOpacity());
         graphics.setTemplate(template);
 
-        new BoardUpdateUser(board, graphics);
+        //new BoardUpdateUser(board, graphics);
         new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
@@ -35,8 +40,7 @@ public class PxlsCLI {
 
         BotNet bot = new BotNet(new TaskGenerator(board, template));
         for(Object token : tokens) {
-            new User((String)token);
-            bot.addUser(new User((String)token));
+            bot.addUser(new User((String)token, new UserProxy("49.49.91.180", 3128)));
         }
         bot.start();
     }

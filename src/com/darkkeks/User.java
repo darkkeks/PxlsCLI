@@ -12,13 +12,17 @@ public class User extends MessageReceiver {
     private String banReason;
 
     private long cooldownStart;
-    private float cooldown;
+    private float cooldown = DEFAULT_COOLDOWN;
 
-    private boolean gotUserinfo;
+
+    private boolean gotUserinfo = false;
+
+    public User(String token, UserProxy proxy) {
+        this.token = token;
+        this.connect(new ProxiedSocketClient(this, proxy, token));
+    }
 
     public User(String token) {
-        this.gotUserinfo = false;
-        this.cooldown = Float.NaN;
         this.token = token;
         this.connect(token);
     }
@@ -39,7 +43,7 @@ public class User extends MessageReceiver {
     }
 
     public boolean gotUserinfo() {
-        return gotUserinfo;
+        return gotUserInfo;
     }
 
     public boolean isConnected() {
@@ -59,9 +63,9 @@ public class User extends MessageReceiver {
     }
 
     @Override
-    protected void handleUserinfo(String username, String role, boolean banned, long banExpiry, String ban_reason, String method) {
+    protected void handleUserInfo(String username, String role, boolean banned, long banExpiry, String ban_reason, String method) {
         System.out.println(username + " authorized.");
-        this.gotUserinfo = true;
+        this.gotUserInfo = true;
         this.username = username;
         this.banned = banned;
         this.banReason = ban_reason;
@@ -70,7 +74,7 @@ public class User extends MessageReceiver {
     @Override
     protected void handleCooldown(float wait) {
         System.out.println(username + " cooldown: " + wait);
-        if(!gotUserinfo) {
+        if(!gotUserInfo) {
             close();
             throw new IllegalStateException("Couldn't login");
         }
@@ -81,7 +85,7 @@ public class User extends MessageReceiver {
 
     @Override
     protected void handlePixel(int x, int y, byte color) {
-        if(!gotUserinfo) {
+        if(!gotUserInfo) {
             close();
             throw new IllegalStateException("Couldn't login");
         }
