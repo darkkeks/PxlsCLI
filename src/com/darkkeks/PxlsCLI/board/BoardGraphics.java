@@ -48,6 +48,7 @@ public class BoardGraphics {
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setupKeyListener();
         setupMouseWheelListener();
