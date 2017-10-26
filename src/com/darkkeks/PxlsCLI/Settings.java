@@ -5,21 +5,129 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import com.google.gson.*;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import com.google.gson.JsonObject;
 
 public class Settings {
 
     private static JsonObject sets;
+    private static JsonObject defaults = new JsonObject();
 
-    public Settings(final String path) {
+    private static final Object[][] defaultsRaw = new Object[][] {
+            {"tokensFilePath", "tokens.in"},
+            {"templateURI", "https://i.imgur.com/dJixaNt.png"},
+            {"templateOffsetX", 568},
+            {"templateOffsetY", 762},
+            {"templateOpacity", 0.5},
+            {"templateReplacePixels", true},
+            {"controls", new Object[][] {
+                    {"up", "up"},
+                    {"left", "left"},
+                    {"right", "right"},
+                    {"down", "down"},
+                    {"zoomIn", "+"},
+                    {"zoomOut", "-"},
+                    {"shift", "shift"},
+                    {"ctrl", "ctrl"}
+            }}
+    };
+
+    Settings(final String path) {
+        createDefaults();
+
         try {
-            readSettings(path);
+            sets = readSettings(path);
+            checkSettings(path);
+        } catch (FileNotFoundException e) {
+            System.out.println("Settings file not found");
+            createSettingsFile(defaults, path);
+            sets = defaults.deepCopy();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void readSettings(String path) throws IOException {
+    private JsonObject convertObjectToJsonObject(Object[][] obj) {
+        JsonObject jo = new JsonObject();
+        for (Object[] o : obj) {
+            String key = o[0].toString();
+
+            if (o[1] instanceof Object[][]) {
+                jo.add(key, convertObjectToJsonObject((Object[][]) o[1]));
+                continue;
+            }
+
+            String value = o[1].toString();
+
+            jo.addProperty(key, value);
+        }
+        return jo;
+    }
+
+    private void createDefaults() {
+        defaults = convertObjectToJsonObject(defaultsRaw);
+    }
+
+    private void checkSettings(String path) {
+        if (sets == null || sets.size() < 1) {
+            sets = defaults.deepCopy();
+            createSettingsFile(defaults, path);
+            return;
+        }
+
+        for (Object[] o : defaultsRaw) {
+            String k = o[0].toString();
+
+            if (o[1] instanceof Object[][]) {
+                if ( !sets.has(k) || sets.get(k).isJsonNull() ) {
+                    sets.add(k, defaults.get(k).getAsJsonObject());
+                    continue;
+                }
+
+                for (Object[] oo: (Object[][]) o[1]) {
+                    String kk = oo[0].toString();
+
+                    if (oo[1] instanceof Object[][]) continue;
+
+                    String vv = oo[1].toString();
+
+                    if ( !sets.get(k).getAsJsonObject().has(kk) || sets.get(k).getAsJsonObject().get(kk).toString().isEmpty() )
+                        sets.get(k).getAsJsonObject().addProperty(kk, vv);
+                }
+            }
+
+            String v = o[1].toString();
+
+            if ( !sets.has(k) || sets.get(k).toString().isEmpty() ) sets.addProperty(k, v);
+        }
+    }
+
+    private void createSettingsFile(JsonObject o, String path) {
+        String content = o.toString();
+
+        FileWriter fw = null;
+        BufferedWriter bw = null;
+
+        try {
+            fw = new FileWriter(path);
+            bw = new BufferedWriter(fw);
+
+            bw.write(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null) bw.close();
+                if (fw != null) fw.close();
+            }catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private JsonObject readSettings(String path) throws IOException {
         InputStream is = new FileInputStream(path);
         BufferedReader buf = new BufferedReader(new InputStreamReader(is));
 
@@ -33,25 +141,30 @@ public class Settings {
 
         String fileAsString = sb.toString();
 
-        sets = PxlsCLI.gson.parse(fileAsString).getAsJsonObject();
+        if (fileAsString.isEmpty()) {
+            fileAsString = defaults.toString();
+            createSettingsFile(defaults, path);
+        }
+
+        return PxlsCLI.gson.parse(fileAsString).getAsJsonObject();
     }
 
-    public String getTokensFilePath() {
+    String getTokensFilePath() {
         return sets.get("tokensFilePath").getAsString();
     }
-    public String getTemplateURI() {
+    String getTemplateURI() {
         return sets.get("templateURI").getAsString();
     }
-    public int getTemplateOffsetX() {
+    int getTemplateOffsetX() {
         return sets.get("templateOffsetX").getAsInt();
     }
-    public int getTemplateOffsetY() {
+    int getTemplateOffsetY() {
         return sets.get("templateOffsetY").getAsInt();
     }
-    public float getTemplateOpacity() {
+    float getTemplateOpacity() {
         return sets.get("templateOpacity").getAsFloat();
     }
-    public boolean getTemplateReplacePixels() {
+    boolean getTemplateReplacePixels() {
         return sets.get("templateReplacePixels").getAsBoolean();
     }
 
@@ -93,6 +206,7 @@ public class Settings {
         } catch (NumberFormatException e) { }
 
         key = key.toLowerCase();
+
         switch (key) {
             case "break":           return 3;
             case "backspace":       return 8;
