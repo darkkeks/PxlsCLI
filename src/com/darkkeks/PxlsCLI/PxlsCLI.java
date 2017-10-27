@@ -41,17 +41,25 @@ public class PxlsCLI {
         new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
+
+        UserProvider userProvider;
+        if(settings.useProxy()) {
+            ProxyProvider proxyProvider = new ProxyProvider(settings.getProxyFilePath());
+            proxyProvider.init();
+            userProvider = new UserProvider(proxyProvider);
+        } else {
+            userProvider = new UserProvider();
+        }
+
         Object[] tokens = readTokens(settings.getTokensFilePath());
         System.out.println("Read " + tokens.length + " tokens.");
 
-        UserProvider userProvider = new UserProvider();
         for(Object token : tokens) {
-            userProvider.add(new User((String)token));
+            userProvider.add((String)token);
         }
 
-
-        ManualBot bot = new ManualBot(board, template, userProvider, graphics);
-        bot.start();
+        //ManualBot bot = new ManualBot(board, template, userProvider, graphics);
+        //bot.start();
     }
 
     private Object[] readTokens(String path) {

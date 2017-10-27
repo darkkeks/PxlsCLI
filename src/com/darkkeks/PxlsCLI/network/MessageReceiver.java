@@ -28,6 +28,10 @@ public abstract class MessageReceiver {
         socketClient.close();
     }
 
+    protected boolean isProxied() {
+        return socketClient instanceof ProxiedSocketClient;
+    }
+
     protected void sendPixel(int x, int y, byte color) {
         JsonObject msg = new JsonObject();
         msg.add("type", new JsonPrimitive("pixel"));

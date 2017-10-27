@@ -28,9 +28,9 @@ public class ProxiedSocketClient extends SocketClient {
             SSLSocketFactory factory = sslContext.getSocketFactory();
             this.setSocket( factory.createSocket(proxySocket, host, port, true) );
             this.connectBlocking();
-        } catch (IOException | InterruptedException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (Throwable e) {
             System.out.println("Failed to connect through proxy " + userProxy);
-            e.printStackTrace();
+            throw new IllegalStateException("Most likely bad proxy.");
         }
     }
 }

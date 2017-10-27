@@ -39,6 +39,13 @@ public class Settings {
     public String getTokensFilePath() {
         return sets.get("tokensFilePath").getAsString();
     }
+    public boolean useProxy() {
+        return sets.get("useProxy").getAsBoolean();
+    }
+    public String getProxyFilePath() {
+        return sets.get("proxyFilePath").getAsString();
+    }
+
     public String getTemplateURI() {
         return sets.get("templateURI").getAsString();
     }
