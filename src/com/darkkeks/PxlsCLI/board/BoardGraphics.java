@@ -27,9 +27,8 @@ public class BoardGraphics {
     private BoardClickListener boardClickListener;
 
     private AffineTransform transform;
-    private int offsetX, offsetY,
-            mousePressedX, mousePressedY,
-            mouseAccumulatedMoveX, mouseAccumulatedMoveY;
+    private double offsetX, offsetY,
+            mousePressedX, mousePressedY;
     private double zoom;
     private boolean isShiftHeld, isCtrlHeld;
 
@@ -84,12 +83,12 @@ public class BoardGraphics {
         return MOVE_STEP / zoom;
     }
 
-    private int getWidthInPixels() {
-        return (int)Math.ceil((double)WIDTH / zoom);
+    private double getWidthInPixels() {
+        return WIDTH / zoom;
     }
 
-    private int getHeightInPixels() {
-        return (int)Math.ceil((double)HEIGHT / zoom);
+    private double getHeightInPixels() {
+        return HEIGHT / zoom;
     }
 
     private void zoomInCenter() {
@@ -166,9 +165,13 @@ public class BoardGraphics {
     private void setupMouseWheelListener() {
         canvas.addMouseWheelListener((e) -> {
             int x = e.getX(), y = e.getY();
-            if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT) return;
-            if(e.getWheelRotation() < 0) zoomIn(x, y);
-            else zoomOut(x, y);
+            if (x < 0 || x > WIDTH ||
+                    y < 0 || y > HEIGHT)
+                return;
+            if(e.getWheelRotation() < 0)
+                zoomIn(x, y);
+            else
+                zoomOut(x, y);
           
             checkBorders();
             updateTransform();
@@ -198,8 +201,6 @@ public class BoardGraphics {
             public void mousePressed(MouseEvent e) {
                 mousePressedX = e.getX();
                 mousePressedY = e.getY();
-                mouseAccumulatedMoveX = 0;
-                mouseAccumulatedMoveY = 0;
             }
 
             @Override
@@ -213,19 +214,8 @@ public class BoardGraphics {
         canvas.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                mouseAccumulatedMoveX += mousePressedX - e.getX();
-                mouseAccumulatedMoveY += mousePressedY - e.getY();
-
-                if (Math.abs(mouseAccumulatedMoveX) >= zoom) {
-                    offsetX += Math.round(mouseAccumulatedMoveX / zoom);
-                    mouseAccumulatedMoveX -= zoom * Math.round(mouseAccumulatedMoveX / zoom);
-                }
-
-                if (Math.abs(mouseAccumulatedMoveY) >= zoom) {
-                    offsetY += Math.round(mouseAccumulatedMoveY / zoom);
-                    mouseAccumulatedMoveY -= zoom * Math.round(mouseAccumulatedMoveY / zoom);
-                }
-
+                offsetX += (mousePressedX - e.getX()) / zoom;
+                offsetY += (mousePressedY - e.getY()) / zoom;
                 mousePressedX = e.getX();
                 mousePressedY = e.getY();
 
