@@ -4,11 +4,14 @@ import com.darkkeks.PxlsCLI.PxlsCLI;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
+import javax.swing.ImageIcon;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -47,6 +50,7 @@ public class BoardGraphics {
         frame.add(canvas);
         frame.setResizable(false);
         frame.pack();
+        frame.setIconImage(new ImageIcon("src/resources/favicon.png").getImage());
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -139,14 +143,14 @@ public class BoardGraphics {
                     return;
 
                 int key = e.getKeyCode();
-                if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = true;
-                if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = true;
-                if (key == PxlsCLI.settings.getControlsUp()) offsetY -= getMoveStep();
-                if (key == PxlsCLI.settings.getControlsDown()) offsetY += getMoveStep();
-                if (key == PxlsCLI.settings.getControlsLeft()) offsetX -= getMoveStep();
-                if (key == PxlsCLI.settings.getControlsRight()) offsetX += getMoveStep();
-                if (key == PxlsCLI.settings.getControlsZoomIn()) zoomInCenter();
-                if (key == PxlsCLI.settings.getControlsZoomOut()) zoomOutCenter();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "shift"))) isShiftHeld = true;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "ctrl"))) isCtrlHeld = true;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "up"))) offsetY -= getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "left"))) offsetX -= getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "right"))) offsetX += getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "down"))) offsetY += getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "zoomIn"))) zoomInCenter();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "zoomOut"))) zoomOutCenter();
 
                 checkBorders();
                 updateTransform();
@@ -157,8 +161,8 @@ public class BoardGraphics {
             public void keyReleased(KeyEvent e) {
                 int key = e.getKeyCode();
 
-                if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = false;
-                if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = false;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "shift"))) isShiftHeld = false;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "ctrl"))) isCtrlHeld = false;
             }
         });
     }
