@@ -2,13 +2,8 @@ package com.darkkeks.PxlsCLI.board;
 
 import com.darkkeks.PxlsCLI.PxlsCLI;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import javax.swing.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -28,9 +23,10 @@ public class BoardGraphics {
 
     private AffineTransform transform;
     private double offsetX, offsetY,
-            mousePressedX, mousePressedY;
+            mousePressedX, mousePressedY,
+            templateAccumulatedMoveX, templateAccumulatedMoveY;
     private double zoom;
-    private boolean isShiftHeld, isCtrlHeld;
+    private boolean isShiftHeld, isCtrlHeld, isTemplateMove;
 
     public BoardGraphics(Board board) {
         this.board = board;
@@ -46,6 +42,7 @@ public class BoardGraphics {
         frame.add(canvas);
         frame.setResizable(false);
         frame.pack();
+        frame.setIconImage(new ImageIcon(PxlsCLI.class.getResource("/favicon.png")).getImage());
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -138,14 +135,14 @@ public class BoardGraphics {
                     return;
 
                 int key = e.getKeyCode();
-                if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = true;
-                if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = true;
-                if (key == PxlsCLI.settings.getControlsUp()) offsetY -= getMoveStep();
-                if (key == PxlsCLI.settings.getControlsDown()) offsetY += getMoveStep();
-                if (key == PxlsCLI.settings.getControlsLeft()) offsetX -= getMoveStep();
-                if (key == PxlsCLI.settings.getControlsRight()) offsetX += getMoveStep();
-                if (key == PxlsCLI.settings.getControlsZoomIn()) zoomInCenter();
-                if (key == PxlsCLI.settings.getControlsZoomOut()) zoomOutCenter();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "shift"))) isShiftHeld = true;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "ctrl"))) isCtrlHeld = true;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "up"))) offsetY -= getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "left"))) offsetX -= getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "right"))) offsetX += getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "down"))) offsetY += getMoveStep();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "zoomIn"))) zoomInCenter();
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "zoomOut"))) zoomOutCenter();
 
                 checkBorders();
                 updateTransform();
@@ -156,8 +153,8 @@ public class BoardGraphics {
             public void keyReleased(KeyEvent e) {
                 int key = e.getKeyCode();
 
-                if (key == PxlsCLI.settings.getControlsShift()) isShiftHeld = false;
-                if (key == PxlsCLI.settings.getControlsCtrl()) isCtrlHeld = false;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "shift"))) isShiftHeld = false;
+                if (key == KeyParser.getKeyCode(PxlsCLI.config.get("controls", "ctrl"))) isCtrlHeld = false;
             }
         });
     }
@@ -195,10 +192,16 @@ public class BoardGraphics {
                 } catch (NoninvertibleTransformException ex) {
                     ex.printStackTrace();
                 }
+
+                if (isTemplateMove) {
+                    PxlsCLI.config.put("template", "offsetX", canvas.getTemplateTransform().getTranslateX());
+                    PxlsCLI.config.put("template", "offsetY", canvas.getTemplateTransform().getTranslateY());
+                }
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
+                isTemplateMove = isCtrlHeld;
                 mousePressedX = e.getX();
                 mousePressedY = e.getY();
             }
@@ -214,8 +217,31 @@ public class BoardGraphics {
         canvas.addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                offsetX += (mousePressedX - e.getX()) / zoom;
-                offsetY += (mousePressedY - e.getY()) / zoom;
+                if(!isTemplateMove) {
+                    offsetX += (mousePressedX - e.getX()) / zoom;
+                    offsetY += (mousePressedY - e.getY()) / zoom;
+                } else {
+                    templateAccumulatedMoveX += mousePressedX - e.getX();
+                    templateAccumulatedMoveY += mousePressedY - e.getY();
+
+                    int x = (int)canvas.getTemplateTransform().getTranslateX();
+                    int y = (int)canvas.getTemplateTransform().getTranslateY();
+
+                    if (Math.abs(templateAccumulatedMoveX) >= zoom) {
+                        x -= Math.round(templateAccumulatedMoveX / zoom);
+                        templateAccumulatedMoveX -= zoom * Math.round(templateAccumulatedMoveX / zoom);
+                    }
+
+                    if (Math.abs(templateAccumulatedMoveY) >= zoom) {
+                        y -= Math.round(templateAccumulatedMoveY / zoom);
+                        templateAccumulatedMoveY -= zoom * Math.round(templateAccumulatedMoveY / zoom);
+                    }
+
+                    canvas.getTemplateTransform().setToTranslation(x, y);
+                    PxlsCLI.config.put("template", "offsetY", y);
+                    PxlsCLI.config.put("template", "offsetX", x);
+                }
+
                 mousePressedX = e.getX();
                 mousePressedY = e.getY();
 

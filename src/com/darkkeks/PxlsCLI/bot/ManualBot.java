@@ -1,16 +1,19 @@
 package com.darkkeks.PxlsCLI.bot;
 
-import com.darkkeks.PxlsCLI.board.*;
+import com.darkkeks.PxlsCLI.board.Board;
+import com.darkkeks.PxlsCLI.board.BoardGraphics;
+import com.darkkeks.PxlsCLI.board.Pixel;
+import com.darkkeks.PxlsCLI.board.Template;
 
 public class ManualBot {
 
     private static final int[] dx = {1, 0, -1, 0};
     private static final int[] dy = {0, 1, 0, -1};
 
-    private Board board;
-    private Template template;
-    private BoardGraphics graphics;
-    private UserProvider userProvider;
+    private final Board board;
+    private final Template template;
+    private final BoardGraphics graphics;
+    private final UserProvider userProvider;
 
     public ManualBot(Board board, Template template, UserProvider userProvider, BoardGraphics graphics) {
         this.board = board;

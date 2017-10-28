@@ -11,7 +11,7 @@ public class User extends MessageReceiver {
 
     private static final float DEFAULT_COOLDOWN = 5;
 
-    private String token;
+    private final String token;
     private String username;
     private boolean banned;
     private String banReason;
