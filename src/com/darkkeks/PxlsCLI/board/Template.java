@@ -7,8 +7,8 @@ public class Template {
     private final BoardGraphics graphics;
 
     private final String url;
-    private final int x;
-    private final int y;
+    private int x;
+    private int y;
     private final float opacity;
     private final boolean replacePixels;
 
@@ -115,5 +115,10 @@ public class Template {
         if(isLoaded && checkRange(x, y))
             return data[(y - this.y) * getWidth() + (x - this.x)];
         return -2;
+    }
+
+    public void setPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 }

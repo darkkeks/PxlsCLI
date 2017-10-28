@@ -237,7 +237,8 @@ public class BoardGraphics {
                         templateAccumulatedMoveY -= zoom * Math.round(templateAccumulatedMoveY / zoom);
                     }
 
-                    canvas.getTemplateTransform().setToTranslation(x, y);
+                    template.setPosition(x, y);
+                    canvas.updateTemplate();
                     PxlsCLI.config.put("template", "offsetY", y);
                     PxlsCLI.config.put("template", "offsetX", x);
                 }

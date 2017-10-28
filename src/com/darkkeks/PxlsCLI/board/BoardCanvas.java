@@ -47,6 +47,10 @@ public class BoardCanvas extends JPanel {
 
     public void setTemplate(Template template) {
         this.template = template;
+        updateTemplate();
+    }
+
+    public void updateTemplate() {
         this.templateTransform.setToTranslation(template.getX(), template.getY());
     }
 
