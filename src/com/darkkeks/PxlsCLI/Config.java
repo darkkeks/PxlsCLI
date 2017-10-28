@@ -1,45 +1,124 @@
 package com.darkkeks.PxlsCLI;
 
-import java.io.*;
-import java.util.ArrayList;
-
 import org.ini4j.InvalidFileFormatException;
 import org.ini4j.Profile.Section;
 import org.ini4j.Wini;
 
+import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.ArrayList;
 
 public class Config {
 
-    private String p;
+    private static boolean autoUpdateConfigFile = true;
+    private URL u;
     private Wini config;
     private Wini configDefaults;
-    private boolean autoUpdateConfigFile = false;
 
-    public Config (final String path, final String defaultPath) {
-        p = path;
+    public Config (final URL cfg, final URL def) {
+        this.u = cfg;
 
         try {
-            configDefaults = readIniFile(defaultPath);
-            config = readIniFile(path);
+            configDefaults = readIniFile(def);
+            config = readIniFile(cfg);
         } catch (InvalidFileFormatException e) {
             System.out.println("Invalid config file format. Using default config.");
             e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("Config file does not exists. Using default config.");
         } catch (IOException e) {
             System.out.println("Error accessing config file. Using default config.");
-//            e.printStackTrace();
+            e.printStackTrace();
         } finally {
             config = checkWiniConfig(config, configDefaults);
             updateConfigFile();
         }
     }
 
-    private Wini readIniFile (String path) throws InvalidFileFormatException, IOException {
-        return new Wini(new File(path));
+    public Config (final URL cfg, final String def) {
+        this.u = cfg;
+
+        try {
+            configDefaults = readIniFile(new File(def).toURI().toURL());
+            config = readIniFile(cfg);
+        } catch (InvalidFileFormatException e) {
+            System.out.println("Invalid config file format. Using default config.");
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("Config file does not exists. Using default config.");
+        } catch (IOException e) {
+            System.out.println("Error accessing config file. Using default config.");
+            e.printStackTrace();
+        } finally {
+            config = checkWiniConfig(config, configDefaults);
+            updateConfigFile();
+        }
     }
 
-    private void writeIniFile (String path, Wini ini) throws InvalidFileFormatException, IOException {
-        File f = new File(path);
-        if ( !f.exists() || f.isDirectory() ) return;
+    public Config (final String cfg, final URL def) {
+        try {
+            configDefaults = readIniFile(def);
+            config = readIniFile(new File(cfg).toURI().toURL());
+            this.u = new File(cfg).toURI().toURL();
+        } catch (InvalidFileFormatException e) {
+            System.out.println("Invalid config file format. Using default config.");
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("Config file does not exists. Using default config.");
+        } catch (IOException e) {
+            System.out.println("Error accessing config file. Using default config.");
+            e.printStackTrace();
+        } finally {
+            config = checkWiniConfig(config, configDefaults);
+            updateConfigFile();
+        }
+    }
+
+    public Config (final String cfg, final String def) {
+        try {
+            configDefaults = readIniFile(new File(def).toURI().toURL());
+            config = readIniFile(new File(cfg).toURI().toURL());
+            this.u = new File(cfg).toURI().toURL();
+        } catch (InvalidFileFormatException e) {
+            System.out.println("Invalid config file format. Using default config.");
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            System.out.println("Config file does not exists. Using default config.");
+        } catch (IOException e) {
+            System.out.println("Error accessing config file. Using default config.");
+            e.printStackTrace();
+        } finally {
+            config = checkWiniConfig(config, configDefaults);
+            updateConfigFile();
+        }
+    }
+
+    public static boolean isAutoUpdateConfigFile() {
+        return autoUpdateConfigFile;
+    }
+
+    public void setAutoUpdateConfigFile (boolean state) {
+        autoUpdateConfigFile = state;
+        updateConfigFile();
+    }
+
+    private Wini readIniFile (URL url) throws InvalidFileFormatException, FileNotFoundException, IOException {
+        return new Wini(url);
+    }
+
+    private void writeIniFile (URL url, Wini ini) throws InvalidFileFormatException, IOException {
+        File f;
+
+        try {
+            f = new File(url.toURI());
+        } catch(URISyntaxException e) {
+            f = new File(url.getPath());
+        } catch (NullPointerException e) {
+            f = new File("config.ini");
+        }
+
+        if ( f.isDirectory() ) return;
 
         String s = WiniToIniString(ini);
         if ( s.isEmpty() ) return;
@@ -75,7 +154,7 @@ public class Config {
     private Wini checkWiniConfig(Wini c, Wini d) {
         if ( c == null || c.size() < 1 ) {
             try {
-                writeIniFile(p, d);
+                writeIniFile(u, d);
             } catch (IOException e) {
                 e.printStackTrace();
             } return d;
@@ -120,18 +199,10 @@ public class Config {
 
     public void updateConfigFile () {
         try {
-            writeIniFile(p, config);
+            writeIniFile(u, config);
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setAutoUpdateConfigFile (boolean state) {
-        autoUpdateConfigFile = state;
-    }
-
-    public boolean isAutoUpdateConfigFile() {
-        return autoUpdateConfigFile;
     }
 
     public String get (String section, String key) {
@@ -144,6 +215,10 @@ public class Config {
 
     public float getFloat (String section, String key) {
         return Float.parseFloat(get(section, key));
+    }
+
+    public double getDouble (String section, String key) {
+        return  Double.parseDouble(get(section, key));
     }
 
     public boolean getBool (String section, String key) {
@@ -173,6 +248,10 @@ public class Config {
     }
 
     public void put (String section, String key, boolean value) {
+        put(section, key, String.valueOf(value));
+    }
+
+    public void put (String section, String key, double value) {
         put(section, key, String.valueOf(value));
     }
 

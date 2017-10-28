@@ -1,6 +1,9 @@
 package com.darkkeks.PxlsCLI.bot;
 
-import com.darkkeks.PxlsCLI.board.*;
+import com.darkkeks.PxlsCLI.board.Board;
+import com.darkkeks.PxlsCLI.board.BoardGraphics;
+import com.darkkeks.PxlsCLI.board.Pixel;
+import com.darkkeks.PxlsCLI.board.Template;
 
 public class ManualBot {
 

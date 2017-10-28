@@ -1,9 +1,7 @@
 package com.darkkeks.PxlsCLI.board;
 
-import javax.swing.JPanel;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
@@ -50,6 +48,10 @@ public class BoardCanvas extends JPanel {
     public void setTemplate(Template template) {
         this.template = template;
         this.templateTransform.setToTranslation(template.getX(), template.getY());
+    }
+
+    public AffineTransform getTemplateTransform() {
+        return templateTransform;
     }
 
     public AffineTransform getTransform() {

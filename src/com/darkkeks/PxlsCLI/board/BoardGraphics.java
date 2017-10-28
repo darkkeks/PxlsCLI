@@ -2,16 +2,8 @@ package com.darkkeks.PxlsCLI.board;
 
 import com.darkkeks.PxlsCLI.PxlsCLI;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-import javax.swing.ImageIcon;
-
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-
+import javax.swing.*;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Point2D;
@@ -34,7 +26,7 @@ public class BoardGraphics {
             mousePressedX, mousePressedY,
             mouseAccumulatedMoveX, mouseAccumulatedMoveY;
     private double zoom;
-    private boolean isShiftHeld, isCtrlHeld;
+    private boolean isShiftHeld, isCtrlHeld, isTemplateMove;
 
     public BoardGraphics(Board board) {
         this.board = board;
@@ -50,7 +42,7 @@ public class BoardGraphics {
         frame.add(canvas);
         frame.setResizable(false);
         frame.pack();
-        frame.setIconImage(new ImageIcon("src/resources/favicon.png").getImage());
+        frame.setIconImage(new ImageIcon(PxlsCLI.class.getResource("/favicon.png")).getImage());
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -89,11 +81,11 @@ public class BoardGraphics {
     }
 
     private int getWidthInPixels() {
-        return (int)Math.ceil((double)WIDTH / zoom);
+        return (int)Math.floor((double)WIDTH / zoom);
     }
 
     private int getHeightInPixels() {
-        return (int)Math.ceil((double)HEIGHT / zoom);
+        return (int)Math.floor((double)HEIGHT / zoom);
     }
 
     private void zoomInCenter() {
@@ -196,10 +188,16 @@ public class BoardGraphics {
                 } catch (NoninvertibleTransformException ex) {
                     ex.printStackTrace();
                 }
+
+                if (isTemplateMove) {
+                    PxlsCLI.config.put("template", "offsetX", canvas.getTemplateTransform().getTranslateX());
+                    PxlsCLI.config.put("template", "offsetY", canvas.getTemplateTransform().getTranslateY());
+                }
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
+                isTemplateMove = isCtrlHeld;
                 mousePressedX = e.getX();
                 mousePressedY = e.getY();
                 mouseAccumulatedMoveX = 0;
@@ -221,12 +219,26 @@ public class BoardGraphics {
                 mouseAccumulatedMoveY += mousePressedY - e.getY();
 
                 if (Math.abs(mouseAccumulatedMoveX) >= zoom) {
-                    offsetX += Math.round(mouseAccumulatedMoveX / zoom);
+                    if (isTemplateMove) {
+                        int x = (int) ((int) canvas.getTemplateTransform().getTranslateX() - Math.round(mouseAccumulatedMoveX / zoom));
+                        int y = (int) canvas.getTemplateTransform().getTranslateY();
+                        canvas.getTemplateTransform().setToTranslation(x, y);
+                        PxlsCLI.config.put("template", "offsetX", x);
+                    } else {
+                        offsetX += Math.round(mouseAccumulatedMoveX / zoom);
+                    }
                     mouseAccumulatedMoveX -= zoom * Math.round(mouseAccumulatedMoveX / zoom);
                 }
 
                 if (Math.abs(mouseAccumulatedMoveY) >= zoom) {
-                    offsetY += Math.round(mouseAccumulatedMoveY / zoom);
+                    if (isTemplateMove) {
+                        int x = (int) canvas.getTemplateTransform().getTranslateX();
+                        int y = (int) ((int) canvas.getTemplateTransform().getTranslateY() - Math.round(mouseAccumulatedMoveY / zoom));
+                        canvas.getTemplateTransform().setToTranslation(x, y);
+                        PxlsCLI.config.put("template", "offsetY", y);
+                    } else {
+                        offsetY += Math.round(mouseAccumulatedMoveY / zoom);
+                    }
                     mouseAccumulatedMoveY -= zoom * Math.round(mouseAccumulatedMoveY / zoom);
                 }
 

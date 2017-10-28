@@ -4,16 +4,17 @@ import com.darkkeks.PxlsCLI.board.Board;
 import com.darkkeks.PxlsCLI.board.BoardGraphics;
 import com.darkkeks.PxlsCLI.board.BoardUpdateUser;
 import com.darkkeks.PxlsCLI.board.Template;
-import com.darkkeks.PxlsCLI.bot.*;
+import com.darkkeks.PxlsCLI.bot.ManualBot;
+import com.darkkeks.PxlsCLI.bot.User;
+import com.darkkeks.PxlsCLI.bot.UserProvider;
 import com.darkkeks.PxlsCLI.network.BoardLoadThread;
 import com.darkkeks.PxlsCLI.network.TemplateLoadThread;
-
 import com.google.gson.JsonParser;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.BufferedReader;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
@@ -24,7 +25,8 @@ public class PxlsCLI {
 
     public static final JsonParser gson = new JsonParser();
 
-    public static final Config config = new Config("config.ini", "src/resources/configDefault.ini");
+    public static Config config = new Config( "config.ini",
+                    PxlsCLI.class.getResource("/configDefault.ini"));
 
     private void start() {
         Board board = new Board(WIDTH, HEIGHT);

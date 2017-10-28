@@ -1,6 +1,5 @@
 package com.darkkeks.PxlsCLI.network;
 
-import com.darkkeks.PxlsCLI.network.MessageReceiver;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
