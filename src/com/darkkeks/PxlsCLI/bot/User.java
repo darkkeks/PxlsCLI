@@ -9,7 +9,7 @@ import java.util.Date;
 
 public class User extends MessageReceiver {
 
-    private static final float DEFAULT_COOLDOWN = 5;
+    private static final float DEFAULT_COOLDOWN = -1;
 
     private final String token;
     private String username;
@@ -33,7 +33,7 @@ public class User extends MessageReceiver {
     }
 
     public boolean canPlace() {
-        return cooldown != DEFAULT_COOLDOWN && new Date().getTime() - cooldownStart > cooldown * 1000;
+        return cooldown != DEFAULT_COOLDOWN && getCooldown() < 0;
     }
 
     public boolean tryPlace(Pixel pixel) {
@@ -100,5 +100,9 @@ public class User extends MessageReceiver {
         if(token == null)
             return -1;
         return Integer.parseInt(this.getToken().split("\\|")[0]);
+    }
+
+    public float getCooldown() {
+        return cooldown * 1000 - (new Date().getTime() - cooldownStart);
     }
 }

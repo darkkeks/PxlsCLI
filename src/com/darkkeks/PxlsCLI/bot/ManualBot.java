@@ -1,5 +1,6 @@
 package com.darkkeks.PxlsCLI.bot;
 
+import com.darkkeks.PxlsCLI.SoundUtils;
 import com.darkkeks.PxlsCLI.board.Board;
 import com.darkkeks.PxlsCLI.board.BoardGraphics;
 import com.darkkeks.PxlsCLI.board.Pixel;
@@ -47,5 +48,25 @@ public class ManualBot {
                 }
             }
         });
+
+        new Thread(() -> {
+            boolean alertFlag = true;
+            while (true) {
+                try {
+                    float cooldown = userProvider.getMinimalCooldown();
+                    if(cooldown < 0) {
+                        if(alertFlag)
+                            SoundUtils.alert();
+                        alertFlag = false;
+                    } else {
+                        alertFlag = true;
+                    }
+
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }).start();
     }
 }

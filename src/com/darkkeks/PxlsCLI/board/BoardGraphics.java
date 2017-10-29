@@ -10,8 +10,8 @@ import java.awt.geom.Point2D;
 
 public class BoardGraphics {
 
-    private static final int WIDTH = 500;
-    private static final int HEIGHT = 500;
+    private static final int WIDTH = 250;
+    private static final int HEIGHT = 250;
     private static final int MOVE_STEP = 250;
     private static final double ZOOM_STEP = Math.sqrt(2);
 

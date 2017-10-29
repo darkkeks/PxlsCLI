@@ -60,4 +60,12 @@ public class UserProvider {
     public boolean hasNext() {
         return !placeQueue.isEmpty();
     }
+
+    public float getMinimalCooldown() {
+        float cooldown = 1e9f;
+        for(User user : placeQueue) {
+            cooldown = Math.min(cooldown, user.getCooldown());
+        }
+        return cooldown;
+    }
 }
