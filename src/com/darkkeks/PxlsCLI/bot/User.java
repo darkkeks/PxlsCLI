@@ -70,6 +70,13 @@ public class User extends MessageReceiver {
     @Override
     protected void handleUserInfo(String username, String role, boolean banned, long banExpiry, String ban_reason, String method) {
         System.out.println(username + " authorized.");
+
+        if(isProxied() && banned) {
+            // login without proxy to clear last login ip
+            close();
+            new User(this.token);
+        }
+
         this.gotUserInfo = true;
         this.username = username;
         this.banned = banned;

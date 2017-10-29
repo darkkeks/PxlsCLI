@@ -2,12 +2,9 @@ package com.darkkeks.PxlsCLI.network;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 public class ProxiedSocketClient extends SocketClient {
 
@@ -28,9 +25,9 @@ public class ProxiedSocketClient extends SocketClient {
             SSLSocketFactory factory = sslContext.getSocketFactory();
             this.setSocket( factory.createSocket(proxySocket, host, port, true) );
             this.connectBlocking();
-        } catch (IOException | InterruptedException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (Throwable e) {
             System.out.println("Failed to connect through proxy " + userProxy);
-            e.printStackTrace();
+            throw new IllegalStateException("Most likely bad proxy.");
         }
     }
 }

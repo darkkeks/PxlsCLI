@@ -5,7 +5,7 @@ import com.darkkeks.PxlsCLI.board.BoardGraphics;
 import com.darkkeks.PxlsCLI.board.BoardUpdateUser;
 import com.darkkeks.PxlsCLI.board.Template;
 import com.darkkeks.PxlsCLI.bot.ManualBot;
-import com.darkkeks.PxlsCLI.bot.User;
+import com.darkkeks.PxlsCLI.bot.ProxyProvider;
 import com.darkkeks.PxlsCLI.bot.UserProvider;
 import com.darkkeks.PxlsCLI.network.BoardLoadThread;
 import com.darkkeks.PxlsCLI.network.TemplateLoadThread;
@@ -45,14 +45,22 @@ public class PxlsCLI {
         new BoardLoadThread(board, graphics).start();
         new TemplateLoadThread(template).start();
 
-        Object[] tokens = readTokens(config.get("main", "tokensFilePath"));
-        System.out.println("Read " + tokens.length + " tokens.");
-
-        UserProvider userProvider = new UserProvider();
-        for(Object token : tokens) {
-            userProvider.add(new User((String)token));
+        UserProvider userProvider;
+        if(config.getBool("proxy", "useProxy")) {
+            ProxyProvider proxyProvider = new ProxyProvider(config.get("proxy", "filePath"));
+            proxyProvider.init();
+            userProvider = new UserProvider(proxyProvider);
+        } else {
+            userProvider = new UserProvider();
         }
 
+        Object[] tokens = readTokens(config.get("main", "tokensFilePath"));
+
+        System.out.println("Read " + tokens.length + " tokens.");
+
+        for(Object token : tokens) {
+            userProvider.add((String)token);
+        }
 
         ManualBot bot = new ManualBot(board, template, userProvider, graphics);
         bot.start();
